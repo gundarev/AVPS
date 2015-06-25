@@ -28,17 +28,25 @@ try
         $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
         $headers.Add("X-CSRF-Token",$csrf_token)
         
-        $Global:GlobalSession = New-Object PSObject 
-        $Global:GlobalSession.psTypenames.clear()          
-        $Global:GlobalSession.psTypenames.add('AppVolSession')
-        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name Headers -Value $headers
-        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name Session -Value $session
-        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name Uri -Value ([Uri]$Uri).AbsoluteUri
+        $Global:GlobalSession = New-Object Vmware.Appvolumes.AppVolumesSession
+        $Global:GlobalSession.Headers=$headers
+        $Global:GlobalSession.Session=$session
+        $Global:GlobalSession.Uri=[Uri]$Uri
+        
 
-        $SessionStart=$session.Cookies.GetCookies($(([Uri]$Uri).AbsoluteUri))["_session_id"].TimeStamp
+#        $Global:GlobalSession.psTypenames.clear()          
+#        $Global:GlobalSession.psTypenames.add('AppVolSession')
+#        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name Headers -Value $headers
+#        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name Session -Value $session
+#        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name Uri -Value ([Uri]$Uri).AbsoluteUri
+
+#        $SessionStart=$session.Cookies.GetCookies($(([Uri]$Uri).AbsoluteUri))["_session_id"].TimeStamp
         $version = Get-AppVolVersion
-        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name Version -Value $version.Version
-        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name SessionStart -Value $SessionStart
+        $Global:GlobalSession.Version=$version.version
+        $Global:GlobalSession.SessionStart=$session.Cookies.GetCookies($(([Uri]$Uri).AbsoluteUri))["_session_id"].TimeStamp
+        
+#        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name Version -Value $version.Version
+#        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name SessionStart -Value $SessionStart
 
         return $Global:GlobalSession
     }
@@ -155,13 +163,11 @@ function Get-AppVolVersion{
         try 
         {
             $result=Internal-Rest -Uri $uri -Method Get -Session $Global:GlobalSession 
-            $tmp = New-Object -TypeName PSObject
-            $tmp.psTypenames.clear()          
-            $tmp.psTypenames.add('AppVolVersion') 
-            $tmp|Add-Member -MemberType:NoteProperty -name 'Version' -Value $result.version    
-            $tmp|Add-Member -MemberType:NoteProperty -name 'InternalVersion' -Value $result.internal    
-            $tmp|Add-Member -MemberType:NoteProperty -name 'Copyright' -Value $result.copyright    
-           
+            $tmp = New-Object -TypeName Vmware.Appvolumes.AppVolumesVersion
+            $tmp.Version = $result.version
+            $tmp.InternalVersion = $result.internal
+            $tmp.Copyright = $result.copyright
+
             return $tmp
         }
         catch
@@ -408,6 +414,29 @@ Function Internal-Rest {
     }
 }
 
+
+Add-Type -ReferencedAssemblies (Get-Module Microsoft.PowerShell.Utility).NestedModules[0].Path  @"
+using System;
+using Microsoft.PowerShell;
+namespace Vmware.Appvolumes
+{
+    public class AppVolumesVersion
+    {
+        public string Version;
+        public string InternalVersion;
+        public string Copyright;
+    }
+    public class AppVolumesSession
+    {
+        public System.Collections.Generic.Dictionary<string,string> Headers;
+        public Microsoft.PowerShell.Commands.WebRequestSession Session;
+        public DateTime SessionStart;
+        public Uri Uri;
+        public string Version;
+    }
+}
+"@            
+       
 
 if ($PSVersionTable.PSVersion.Major -lt 3) {
     throw New-Object System.NotSupportedException "PowerShell V3 or higher required."

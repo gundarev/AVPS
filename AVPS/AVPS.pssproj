@@ -8,6 +8,11 @@
     <RootNamespace>MyApplication</RootNamespace>
     <AssemblyName>MyApplication</AssemblyName>
     <Name>AVPS</Name>
+    <Author>Denis Gundarev</Author>
+    <CompanyName>VMware Inc.</CompanyName>
+    <Copyright />
+    <Description />
+    <Guid>2bbb307b-5166-4047-886f-7a54be563a97</Guid>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
