@@ -1,32 +1,4 @@
-﻿if ($PSVersionTable.PSVersion.Major -lt 3) {
-    throw New-Object System.NotSupportedException "PowerShell V3 or higher required."
-}
-[Object[]] $GlobalSession=$null
-<# 
-.Synopsis
-  Creates a new AppVolumes Manager Session.
-
-.Description
-  Creates a new AppVolumes Manager Session.
-
-.Parameter Uri
-  App Volumes Manager URL.
-
-.Parameter Username
-  Administrator username.
-
-.Parameter Password
-  Administrator password.
-.INPUTS
-            None. You cannot pipe objects to Open-AppVolSession
-.OUTPUTS
-Session Object
-.Example
-   # Login to the App Volumes manager.
-   Open-AppVolSession -Uri "http://appvol.domain.com" -Username "admin" -Password "P@ssw0rd"
-    
-#>
-function Open-AppVolSession
+﻿function Open-AppVolSession
 {
   [CmdletBinding(DefaultParameterSetName = "AppVolSession")]
   param(
@@ -55,12 +27,20 @@ try
         
         $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
         $headers.Add("X-CSRF-Token",$csrf_token)
-        $Global:GlobalSession=[pscustomobject]@{ 'Headers' = $headers; 'Session' = $session; 'Uri' = $Uri }
+        
+        $Global:GlobalSession = New-Object PSObject 
+        $Global:GlobalSession.psTypenames.clear()          
+        $Global:GlobalSession.psTypenames.add('AppVolSession')
+        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name Headers -Value $headers
+        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name Session -Value $session
+        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name Uri -Value ([Uri]$Uri).AbsoluteUri
+
         $SessionStart=$session.Cookies.GetCookies($(([Uri]$Uri).AbsoluteUri))["_session_id"].TimeStamp
         $version = Get-AppVolVersion
-        $Global:GlobalSession=[pscustomobject]@{ 'Headers' = $headers; 'Session' = $session; 'Uri' = ([Uri]$Uri).AbsoluteUri; 'Version' = $version.Version; 'SessionStart'= $SessionStart }
-        
-        return @{'Uri' =$Global:GlobalSession.Uri;'Version' = $Global:GlobalSession.Version;'SessionStart'= $Global:GlobalSession.SessionStart}
+        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name Version -Value $version.Version
+        $Global:GlobalSession|Add-Member -MemberType:NoteProperty -Name SessionStart -Value $SessionStart
+
+        return $Global:GlobalSession
     }
     else 
     {
@@ -73,21 +53,77 @@ catch
     Write-Output $_.Exception
     return $false
 }
+<# 
+.Synopsis
+  Creates a new AppVolumes Manager Session.
+
+.Description
+  Creates a new AppVolumes Manager Session.
+
+.Parameter Uri
+  App Volumes Manager URL.
+
+.Parameter Username
+  Administrator username.
+
+.Parameter Password
+  Administrator password.
+.INPUTS
+            None. You cannot pipe objects to Open-AppVolSession
+.OUTPUTS
+Session Object
+.Example
+   # Login to the App Volumes manager.
+   Open-AppVolSession -Uri "http://appvol.domain.com" -Username "admin" -Password "P@ssw0rd"
+    
+#>
 }
-Export-ModuleMember Open-AppVolSession
+
 
 Function Get-AppVolSession {
 if ($Global:GlobalSession){
 
-return @{'Uri' =$Global:GlobalSession.Uri;'Version' = $Global:GlobalSession.Version;'SessionStart'= $Global:GlobalSession.SessionStart}
+return $Global:GlobalSession
 
 }
 else {return "No Open Session"}
+
+    <#    
+    .SYNOPSIS
+        Get Current App Volumes Manager Session
+    .DESCRIPTION
+        Get Current App Volumes Manager Session
+    .EXAMPLE
+        Get-AppVolSession
+    #>
+    
 }
-Export-ModuleMember Get-AppVolSession
 
 
-<# 
+
+
+function Close-AppVolSession
+{
+ 
+
+try 
+{
+    $uri=$Global:GlobalSession.Uri+'/logout'
+    $tmp = Invoke-WebRequest -Uri $uri -Method Get -MaximumRedirection 0 -ErrorAction Ignore -WebSession $Global:GlobalSession.Session -Headers $Global:GlobalSession.Headers
+    
+    $Global:GlobalSession=$null
+
+    
+}
+catch
+{
+    Write-Output $_.Exception
+    Remove-Variable GlobalSession= -Scope Global
+
+    
+}
+    Write-Output "Session Destroyed"
+  <# 
 .Synopsis
   Closes an existing AppVolumes Manager Session.
 
@@ -103,43 +139,37 @@ None
    # Login to the App Volumes manager.
    $session=Open-AppVolSession -Uri "http://appvol.domain.com" -Username "admin" -Password "P@ssw0rd"
    # Logoff from the App Volumes manager.
-   Close-AppVolSession -Session $session
+   Close-AppVolSession 
     
 #>
-function Close-AppVolSession
-{
-  
-  <#[CmdletBinding(DefaultParameterSetName = "AppVolSession")]
-  param(
-    [Parameter(ParameterSetName = "AppVolSession",Position = 1,Mandatory = $true,ValueFromPipeline=$True)]
-    [ValidateNotNullOrEmpty()]
-    [PSCustomObject]$Session
-
-  )#>
-
-try 
-{
-    $uri=$Global:GlobalSession.Uri+'/logout'
-    $tmp = Invoke-WebRequest -Uri $uri -Method Get -MaximumRedirection 0 -ErrorAction Ignore -WebSession $Global:GlobalSession.Session -Headers $Global:GlobalSession.Headers
-    
-    $Global:GlobalSession=$null
-
-    
 }
-catch
-{
-    Write-Output $_.Exception
-    $Global:GlobalSession=$null
-
-    
-}
-    Write-Output "Session Destroyed"
-
-}
-Export-ModuleMember Close-AppVolSession
 
 
-<# 
+
+
+
+function Get-AppVolVersion{
+
+    process{
+        $uri = "$($Global:GlobalSession.Uri)cv_api/version"
+        try 
+        {
+            $result=Internal-Rest -Uri $uri -Method Get -Session $Global:GlobalSession 
+            $tmp = New-Object -TypeName PSObject
+            $tmp.psTypenames.clear()          
+            $tmp.psTypenames.add('AppVolVersion') 
+            $tmp|Add-Member -MemberType:NoteProperty -name 'Version' -Value $result.version    
+            $tmp|Add-Member -MemberType:NoteProperty -name 'InternalVersion' -Value $result.internal    
+            $tmp|Add-Member -MemberType:NoteProperty -name 'Copyright' -Value $result.copyright    
+           
+            return $tmp
+        }
+        catch
+        {
+            Write-error $_.Exception
+        }
+    }
+    <# 
  .Synopsis
   Returns AppVolumes Manager Version.
 
@@ -153,33 +183,57 @@ Export-ModuleMember Close-AppVolSession
  .Example
    # Login to the App Volumes manager.
    $session=New-AppVolSession -Uri "http://appvol.domain.com" -Username "admin" -Password "P@ssw0rd"
-   Get-AppVolVersion -Session $session
+   Get-AppVolVersion 
     
 #>
-
-function Get-AppVolVersion{
-<#param(
-    [Parameter(ParameterSetName = "AppVolSession",Position = 1,Mandatory = $true,ValueFromPipeline=$True)]
-    [ValidateNotNullOrEmpty()]
-    [PSCustomObject]$Session
-    )
-    #>
-    process{
-        $uri = "$($Global:GlobalSession.Uri)/cv_api/version"
-        try 
-        {
-            $result=Internal-Rest -Uri $uri -Method Get -Session $Global:GlobalSession 
-            
-            return [pscustomobject]@{ 'Version' = $result.version; 'InternalVersion' = $result.internal; 'Copyright' = $result.copyright }
-        }
-        catch
-        {
-            Write-Output $_.Exception
-        }
-    }
 }
-Export-ModuleMember Get-AppVolVersion
-<# 
+
+
+function Get-AppVolAppStack{
+    [CmdletBinding(DefaultParameterSetName = "AllAppStacks")]
+    param(
+       [Parameter(ParameterSetName = "AllAppStacks",Position = 1,ValueFromPipeline=$false,Mandatory = $false)]
+        [switch] $All,
+        [Parameter(ParameterSetName = "OneAppStack",Mandatory = $false,Position = 2,ValueFromPipeline=$TRUE,ValueFromPipelineByPropertyName=$true, ValueFromRemainingArguments=$false)]
+        [Alias('id')]
+          [ValidateNotNull()]
+        [int[]]$AppStackIds
+    )
+    begin{
+
+[Object[]] $result=$null
+
+}
+
+    process{
+    
+   $rooturi = "$($Global:GlobalSession.Uri)cv_api/appstacks"
+    switch ($PsCmdlet.ParameterSetName){ 
+        "AllAppStacks"{
+
+            $tmp=Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get
+            foreach ($AppStackId in $tmp.id){
+            $uri="$rooturi/$AppStackId"
+            $instance=(Internal-Rest -Session $Global:GlobalSession -Uri $uri -Method Get).appstack
+            $result+=$instance}
+            
+            }
+        "OneAppStack"{
+        foreach ($AppStackId in $AppStackIds){
+            $uri="$rooturi/$AppStackId"
+            $instance=(Internal-Rest -Session $Global:GlobalSession -Uri $uri -Method Get).appstack
+            $result+=$instance
+           
+            }
+            }
+        }
+    }  
+end{
+
+    return $result
+
+    }
+    <# 
  .Synopsis
   Returns AppVolumes Manager AppStack(s).
 
@@ -195,56 +249,16 @@ Export-ModuleMember Get-AppVolVersion
   AppStack ID
  .Example
   $session=Open-AppVolSession http://appvol01.corp.itbubble.ru fdwl P@ssw0rd
-Get-AppVolAppStack -Session $session|
+Get-AppVolAppStack 
 Where-Object {$_.status -ne "enabled"} |
 Select-Object -Property id|
 Get-AppVolAppStack -Session $session|
 Select-Object -Property name,file_location
     
 #>
-function Get-AppVolAppStack{
-    [CmdletBinding(DefaultParameterSetName = "AllAppStacks")]
-    param(
-        [Parameter(ParameterSetName = "AllAppStacks",Position = 1,Mandatory = $true,ValueFromPipeline=$false)]
-        [Parameter(ParameterSetName = "OneAppStack",Position = 1,Mandatory = $true,ValueFromPipeline=$false)]
-        [ValidateNotNullOrEmpty()]
-        [PSCustomObject]$Session,
-        [Parameter(ParameterSetName = "AllAppStacks",Position = 2,ValueFromPipeline=$false)]
-        [switch] $All,
-        [Parameter(ParameterSetName = "OneAppStack",Mandatory = $true,Position = 2,ValueFromPipeline=$TRUE,ValueFromPipelineByPropertyName=$true, ValueFromRemainingArguments=$false)]
-        [Alias('id')]
-          [ValidateNotNull()]
-        [int[]]$AppStackIds
-    )
-    begin{
-
-[Object[]] $result=$null
-}
-
-    process{
-    $rooturi = "$($session.Uri)/cv_api/appstacks"
-    switch ($PsCmdlet.ParameterSetName){ 
-        "AllAppStacks"{
-            $result=(Internal-Rest -Session $Session -Uri $rooturi -Method Get) 
-            
-            }
-        "OneAppStack"{
-        foreach ($AppStackId in $AppStackIds){
-            $uri="$rooturi/$AppStackId"
-            $instance=(Internal-Rest -Session $Session -Uri $uri -Method Get).appstack
-            $result+=$instance
-           
-            }
-            }
-        }
-    }  
-end{
-$table=$result
-    return $table
-
     }
-    }
-Export-ModuleMember Get-AppVolAppStack
+
+
 
 
 <# 
@@ -295,7 +309,7 @@ function Set-AppVolAppStack{
     return $result|ft
     }
     }
-Export-ModuleMember Set-AppVolAppStack
+
 
    
 
@@ -357,7 +371,7 @@ $Return.message=$result.(($result|Get-Member -MemberType NoteProperty)[-1].Name)
 return $Return
 
 }
-Export-ModuleMember Add-AppVolAppStackAssignment
+
 Function Internal-Rest {
  param(
         [Parameter(Position = 1,Mandatory = $true)]
@@ -394,3 +408,8 @@ Function Internal-Rest {
     }
 }
 
+
+if ($PSVersionTable.PSVersion.Major -lt 3) {
+    throw New-Object System.NotSupportedException "PowerShell V3 or higher required."
+}
+Export-ModuleMember -Function *AppVol*  
