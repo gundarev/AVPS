@@ -1,6 +1,7 @@
 ﻿if ($PSVersionTable.PSVersion.Major -lt 3) {
     throw New-Object System.NotSupportedException "PowerShell V3 or higher required."
 }
+[Object[]] $GlobalSession=$null
 <# 
 .Synopsis
   Creates a new AppVolumes Manager Session.
@@ -54,21 +55,37 @@ try
         
         $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
         $headers.Add("X-CSRF-Token",$csrf_token)
-        return [pscustomobject]@{ 'Headers' = $headers; 'Session' = $session; 'Uri' = $Uri }
+        $Global:GlobalSession=[pscustomobject]@{ 'Headers' = $headers; 'Session' = $session; 'Uri' = $Uri }
+        $SessionStart=$session.Cookies.GetCookies($(([Uri]$Uri).AbsoluteUri))["_session_id"].TimeStamp
+        $version = Get-AppVolVersion
+        $Global:GlobalSession=[pscustomobject]@{ 'Headers' = $headers; 'Session' = $session; 'Uri' = ([Uri]$Uri).AbsoluteUri; 'Version' = $version.Version; 'SessionStart'= $SessionStart }
+        
+        return @{'Uri' =$Global:GlobalSession.Uri;'Version' = $Global:GlobalSession.Version;'SessionStart'= $Global:GlobalSession.SessionStart}
     }
     else 
     {
         Write-Output "Invalid credentials or Uri"
-        return $null
+        return $false
     }
 }
 catch
 {
     Write-Output $_.Exception
-    return $null
+    return $false
 }
 }
 Export-ModuleMember Open-AppVolSession
+
+Function Get-AppVolSession {
+if ($Global:GlobalSession){
+
+return @{'Uri' =$Global:GlobalSession.Uri;'Version' = $Global:GlobalSession.Version;'SessionStart'= $Global:GlobalSession.SessionStart}
+
+}
+else {return "No Open Session"}
+}
+Export-ModuleMember Get-AppVolSession
+
 
 <# 
 .Synopsis
@@ -91,28 +108,33 @@ None
 #>
 function Close-AppVolSession
 {
-  [CmdletBinding(DefaultParameterSetName = "AppVolSession")]
+  
+  <#[CmdletBinding(DefaultParameterSetName = "AppVolSession")]
   param(
     [Parameter(ParameterSetName = "AppVolSession",Position = 1,Mandatory = $true,ValueFromPipeline=$True)]
     [ValidateNotNullOrEmpty()]
     [PSCustomObject]$Session
 
-  )
-process{
+  )#>
+
 try 
 {
-    $uri=$Session.Uri+'/logout'
-    Invoke-WebRequest -Uri $uri -Method Get -MaximumRedirection 0 -ErrorAction Ignore -WebSession $Session.Session -Headers $Session.Headers
+    $uri=$Global:GlobalSession.Uri+'/logout'
+    $tmp = Invoke-WebRequest -Uri $uri -Method Get -MaximumRedirection 0 -ErrorAction Ignore -WebSession $Global:GlobalSession.Session -Headers $Global:GlobalSession.Headers
     
-    
+    $Global:GlobalSession=$null
+
     
 }
 catch
 {
     Write-Output $_.Exception
+    $Global:GlobalSession=$null
+
     
 }
-}
+    Write-Output "Session Destroyed"
+
 }
 Export-ModuleMember Close-AppVolSession
 
@@ -134,17 +156,19 @@ Export-ModuleMember Close-AppVolSession
    Get-AppVolVersion -Session $session
     
 #>
+
 function Get-AppVolVersion{
-param(
+<#param(
     [Parameter(ParameterSetName = "AppVolSession",Position = 1,Mandatory = $true,ValueFromPipeline=$True)]
     [ValidateNotNullOrEmpty()]
     [PSCustomObject]$Session
     )
+    #>
     process{
-        $uri = "$($session.Uri)/cv_api/version"
+        $uri = "$($Global:GlobalSession.Uri)/cv_api/version"
         try 
         {
-            $result=Internal-Rest -Uri $uri -Method Get -Session $Session 
+            $result=Internal-Rest -Uri $uri -Method Get -Session $Global:GlobalSession 
             
             return [pscustomobject]@{ 'Version' = $result.version; 'InternalVersion' = $result.internal; 'Copyright' = $result.copyright }
         }
