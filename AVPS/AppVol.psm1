@@ -1,88 +1,91 @@
-ï»¿if ($PSVersionTable.PSVersion.Major -lt 3) {
-    throw New-Object System.NotSupportedException "PowerShell V3 or higher required."
+if ($PSVersionTable.PSVersion.Major -lt 3) {
+	throw New-Object System.NotSupportedException "PowerShell V3 or higher required."
 }
-[Object[]] $GlobalSession=$null
+[Object[]] $GlobalSession = $null
+
+
+function Open-AppVolSession
+{
 <# 
 .Synopsis
-  Creates a new AppVolumes Manager Session.
+Creates a new AppVolumes Manager Session.
 
 .Description
-  Creates a new AppVolumes Manager Session.
+Creates a new AppVolumes Manager Session.
 
 .Parameter Uri
-  App Volumes Manager URL.
+App Volumes Manager URL.
 
 .Parameter Username
-  Administrator username.
+Administrator username.
 
 .Parameter Password
-  Administrator password.
+Administrator password.
 .INPUTS
-            None. You cannot pipe objects to Open-AppVolSession
+None. You cannot pipe objects to Open-AppVolSession
 .OUTPUTS
 Session Object
 .Example
-   # Login to the App Volumes manager.
-   Open-AppVolSession -Uri "http://appvol.domain.com" -Username "admin" -Password "P@ssw0rd"
-    
-#>
-function Open-AppVolSession
-{
-  [CmdletBinding(DefaultParameterSetName = "AppVolSession")]
-  param(
-    [Parameter(ParameterSetName = "AppVolSession",Position = 1,Mandatory = $true)]
-    [ValidateNotNullOrEmpty()]
-    [ValidateScript({ ([System.URI]$_).IsAbsoluteUri })]
-    [string]$Uri,
+# Login to the App Volumes manager.
+Open-AppVolSession -Uri "http://appvol.domain.com" -Username "admin" -Password "P@ssw0rd"
 
-    [Parameter(ParameterSetName = "AppVolSession",Position = 2,Mandatory = $true)]
-    [ValidateNotNullOrEmpty()]
-    [string]$Username,
-    [Parameter(ParameterSetName = "AppVolSession",Position = 3,Mandatory = $true)]
-    [ValidateNotNullOrEmpty()]
-    [string]$Password
-  )
+#>
+ [CmdletBinding(DefaultParameterSetName = "AppVolSession")]
+param(
+	[Parameter(ParameterSetName = "AppVolSession",Position = 1,Mandatory = $true)]
+	[ValidateNotNullOrEmpty()]
+	[ValidateScript({ ([System.URI]$_).IsAbsoluteUri })]
+	[string]$Uri,
+
+	[Parameter(ParameterSetName = "AppVolSession",Position = 2,Mandatory = $true)]
+	[ValidateNotNullOrEmpty()]
+	[string]$Username,
+	
+	[Parameter(ParameterSetName = "AppVolSession",Position = 3,Mandatory = $true)]
+	[ValidateNotNullOrEmpty()]
+	[string]$Password
+)
 
 try 
 {
-    $result1 = Invoke-WebRequest -Uri $Uri/login -Method Get -SessionVariable session
-    $authentity_token = @( $result1.ParsedHtml.getElementsByName("authenticity_token")).value
-    $admincredentials = @{ 'user[account_name]' = $($Username); 'user[password]' = $($Password); 'authentity_token' = $($authentity_token) }
-    $result = Invoke-WebRequest -Uri $Uri/login -Method POST -SessionVariable session -Body $admincredentials
-    $csrf_token = @( $result.ParsedHtml.getElementsByName("csrf-token")).content
-    if (-Not ([string]::IsNullOrEmpty($csrf_token)))
-    {
-        
-        $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-        $headers.Add("X-CSRF-Token",$csrf_token)
-        $Global:GlobalSession=[pscustomobject]@{ 'Headers' = $headers; 'Session' = $session; 'Uri' = $Uri }
-        $SessionStart=$session.Cookies.GetCookies($(([Uri]$Uri).AbsoluteUri))["_session_id"].TimeStamp
-        $version = Get-AppVolVersion
-        $Global:GlobalSession=[pscustomobject]@{ 'Headers' = $headers; 'Session' = $session; 'Uri' = ([Uri]$Uri).AbsoluteUri; 'Version' = $version.Version; 'SessionStart'= $SessionStart }
-        
-        return @{'Uri' =$Global:GlobalSession.Uri;'Version' = $Global:GlobalSession.Version;'SessionStart'= $Global:GlobalSession.SessionStart}
-    }
-    else 
-    {
-        Write-Output "Invalid credentials or Uri"
-        return $false
-    }
+	$result1 = Invoke-WebRequest -Uri $Uri / login -Method Get -SessionVariable session
+	$authentity_token = @( $result1.ParsedHtml.getElementsByName("authenticity_token")).value
+	$admincredentials = @{ 'user[account_name]' = $($Username); 'user[password]' = $($Password); 'authentity_token' = $($authentity_token) }
+	$result = Invoke-WebRequest -Uri $Uri / login -Method POST -SessionVariable session -Body $admincredentials
+	$csrf_token = @( $result.ParsedHtml.getElementsByName("csrf-token")).content
+	if (-Not ([string]::IsNullOrEmpty($csrf_token)))
+	{
+
+		$headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+		$headers.Add("X-CSRF-Token",$csrf_token)
+		$Global:GlobalSession = [pscustomobject]@{ 'Headers' = $headers; 'Session' = $session; 'Uri' = $Uri }
+		$SessionStart = $session.Cookies.GetCookies($(([Uri]$Uri).AbsoluteUri))["_session_id"].TimeStamp
+		$version = Get-AppVolVersion
+		$Global:GlobalSession = [pscustomobject]@{ 'Headers' = $headers; 'Session' = $session; 'Uri' = ([Uri]$Uri).AbsoluteUri; 'Version' = $version.Version; 'SessionStart'= $SessionStart }
+
+		return @{'Uri' =$Global:GlobalSession.Uri;'Version' = $Global:GlobalSession.Version;'SessionStart'= $Global:GlobalSession.SessionStart}
+	}
+	else 
+	{
+		Write-Output "Invalid credentials or Uri"
+		return $false
+	}
 }
 catch
 {
-    Write-Output $_.Exception
-    return $false
+	Write-Output $_.Exception
+	return $false
 }
 }
 Export-ModuleMember Open-AppVolSession
 
 Function Get-AppVolSession {
-if ($Global:GlobalSession){
+	if ($Global:GlobalSession){
 
-return @{'Uri' =$Global:GlobalSession.Uri;'Version' = $Global:GlobalSession.Version;'SessionStart'= $Global:GlobalSession.SessionStart}
+		return @{'Uri' =$Global:GlobalSession.Uri;'Version' = $Global:GlobalSession.Version;'SessionStart'= $Global:GlobalSession.SessionStart}
 
-}
-else {return "No Open Session"}
+	}
+	else {return "No Open Session"}
 }
 Export-ModuleMember Get-AppVolSession
 
@@ -108,8 +111,8 @@ None
 #>
 function Close-AppVolSession
 {
-  
-  <#[CmdletBinding(DefaultParameterSetName = "AppVolSession")]
+ 
+<#[CmdletBinding(DefaultParameterSetName = "AppVolSession")]
   param(
     [Parameter(ParameterSetName = "AppVolSession",Position = 1,Mandatory = $true,ValueFromPipeline=$True)]
     [ValidateNotNullOrEmpty()]
@@ -119,21 +122,21 @@ function Close-AppVolSession
 
 try 
 {
-    $uri=$Global:GlobalSession.Uri+'/logout'
-    $tmp = Invoke-WebRequest -Uri $uri -Method Get -MaximumRedirection 0 -ErrorAction Ignore -WebSession $Global:GlobalSession.Session -Headers $Global:GlobalSession.Headers
-    
-    $Global:GlobalSession=$null
+	$uri = $Global:GlobalSession.Uri+'/logout'
+	$tmp = Invoke-WebRequest -Uri $uri -Method Get -MaximumRedirection 0 -ErrorAction Ignore -WebSession $Global:GlobalSession.Session -Headers $Global:GlobalSession.Headers
 
-    
+	$Global:GlobalSession = $null
+
+
 }
 catch
 {
-    Write-Output $_.Exception
-    $Global:GlobalSession=$null
+	Write-Output $_.Exception
+	$Global:GlobalSession = $null
 
-    
+
 }
-    Write-Output "Session Destroyed"
+Write-Output "Session Destroyed"
 
 }
 Export-ModuleMember Close-AppVolSession
@@ -159,24 +162,24 @@ Export-ModuleMember Close-AppVolSession
 
 function Get-AppVolVersion{
 <#param(
-    [Parameter(ParameterSetName = "AppVolSession",Position = 1,Mandatory = $true,ValueFromPipeline=$True)]
-    [ValidateNotNullOrEmpty()]
-    [PSCustomObject]$Session
-    )
-    #>
-    process{
-        $uri = "$($Global:GlobalSession.Uri)/cv_api/version"
-        try 
-        {
-            $result=Internal-Rest -Uri $uri -Method Get -Session $Global:GlobalSession 
-            
-            return [pscustomobject]@{ 'Version' = $result.version; 'InternalVersion' = $result.internal; 'Copyright' = $result.copyright }
-        }
-        catch
-        {
-            Write-Output $_.Exception
-        }
-    }
+ [Parameter(ParameterSetName = "AppVolSession",Position = 1,Mandatory = $true,ValueFromPipeline=$True)]
+[ValidateNotNullOrEmpty()]
+[PSCustomObject]$Session
+)
+#>
+process{
+	$uri = "$($Global:GlobalSession.Uri)/cv_api/version"
+	try 
+	{
+		$result = Internal-Rest -Uri $uri -Method Get -Session $Global:GlobalSession 
+
+		return [pscustomobject]@{ 'Version' = $result.version; 'InternalVersion' = $result.internal; 'Copyright' = $result.copyright }
+	}
+	catch
+	{
+		Write-Output $_.Exception
+	}
+}
 }
 Export-ModuleMember Get-AppVolVersion
 <# 
@@ -203,47 +206,47 @@ Select-Object -Property name,file_location
     
 #>
 function Get-AppVolAppStack{
-    [CmdletBinding(DefaultParameterSetName = "AllAppStacks")]
-    param(
-        [Parameter(ParameterSetName = "AllAppStacks",Position = 1,Mandatory = $true,ValueFromPipeline=$false)]
-        [Parameter(ParameterSetName = "OneAppStack",Position = 1,Mandatory = $true,ValueFromPipeline=$false)]
-        [ValidateNotNullOrEmpty()]
-        [PSCustomObject]$Session,
-        [Parameter(ParameterSetName = "AllAppStacks",Position = 2,ValueFromPipeline=$false)]
-        [switch] $All,
-        [Parameter(ParameterSetName = "OneAppStack",Mandatory = $true,Position = 2,ValueFromPipeline=$TRUE,ValueFromPipelineByPropertyName=$true, ValueFromRemainingArguments=$false)]
-        [Alias('id')]
-          [ValidateNotNull()]
-        [int[]]$AppStackIds
-    )
-    begin{
+ [CmdletBinding(DefaultParameterSetName = "AllAppStacks")]
+param(
+	[Parameter(ParameterSetName = "AllAppStacks",Position = 1,Mandatory = $true,ValueFromPipeline=$false)]
+	[Parameter(ParameterSetName = "OneAppStack",Position = 1,Mandatory = $true,ValueFromPipeline=$false)]
+	[ValidateNotNullOrEmpty()]
+	[PSCustomObject]$Session,
+	[Parameter(ParameterSetName = "AllAppStacks",Position = 2,ValueFromPipeline=$false)]
+	[switch] $All,
+	[Parameter(ParameterSetName = "OneAppStack",Mandatory = $true,Position = 2,ValueFromPipeline=$TRUE,ValueFromPipelineByPropertyName=$true, ValueFromRemainingArguments=$false)]
+	[Alias('id')]
+	[ValidateNotNull()]
+	[int[]]$AppStackIds
+)
+begin{
 
-[Object[]] $result=$null
+	[Object[]] $result = $null
 }
 
-    process{
-    $rooturi = "$($session.Uri)/cv_api/appstacks"
-    switch ($PsCmdlet.ParameterSetName){ 
-        "AllAppStacks"{
-            $result=(Internal-Rest -Session $Session -Uri $rooturi -Method Get) 
-            
-            }
-        "OneAppStack"{
-        foreach ($AppStackId in $AppStackIds){
-            $uri="$rooturi/$AppStackId"
-            $instance=(Internal-Rest -Session $Session -Uri $uri -Method Get).appstack
-            $result+=$instance
-           
-            }
-            }
-        }
-    }  
-end{
-$table=$result
-    return $table
+process{
+	$rooturi = "$($session.Uri)/cv_api/appstacks"
+	switch ($PsCmdlet.ParameterSetName){ 
+		"AllAppStacks"{
+			$result = (Internal-Rest -Session $Session -Uri $rooturi -Method Get) 
 
-    }
-    }
+		}
+		"OneAppStack"{
+			foreach ($AppStackId in $AppStackIds){
+				$uri = "$rooturi/$AppStackId"
+				$instance = (Internal-Rest -Session $Session -Uri $uri -Method Get).appstack
+				$result += $instance
+
+			}
+		}
+	}
+} 
+end{
+	$table = $result
+	return $table
+
+}
+}
 Export-ModuleMember Get-AppVolAppStack
 
 
@@ -265,39 +268,39 @@ Export-ModuleMember Get-AppVolAppStack
     
 #>
 function Set-AppVolAppStack{
-    [CmdletBinding(DefaultParameterSetName = "OneAppStack")]
-    param(
-        [Parameter(ParameterSetName = "OneAppStack",Position = 0,Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [PSCustomObject]$Session,
-       
-        [Parameter(ParameterSetName = "OneAppStack",Position = 1,ValueFromPipeline=$TRUE,ValueFromPipelineByPropertyName)]
-        [Alias('id')]
-        [ValidateNotNullOrEmpty()]
-        [int[]]$AppStackId,
-        [Parameter(ParameterSetName = "OneAppStack",Position = 2,ValueFromPipeline=$TRUE,ValueFromPipelineByPropertyName)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Property,
-        [Parameter(ParameterSetName = "OneAppStack",Position = 2,ValueFromPipeline=$TRUE,ValueFromPipelineByPropertyName)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Value
-    )
-    process{
-    $uri = "$($session.Uri)/cv_api/appstacks/$AppStackId"
-   
-  
-            $uri="$uri/$AppStackId"
-            $result=(Internal-Rest -Session $Session -Uri $uri -Method Put).appstack
-      
-        
-      
+ [CmdletBinding(DefaultParameterSetName = "OneAppStack")]
+param(
+	[Parameter(ParameterSetName = "OneAppStack",Position = 0,Mandatory = $true)]
+	[ValidateNotNullOrEmpty()]
+	[PSCustomObject]$Session,
 
-    return $result|ft
-    }
-    }
+	[Parameter(ParameterSetName = "OneAppStack",Position = 1,ValueFromPipeline=$TRUE,ValueFromPipelineByPropertyName)]
+	[Alias('id')]
+	[ValidateNotNullOrEmpty()]
+	[int[]]$AppStackId,
+	[Parameter(ParameterSetName = "OneAppStack",Position = 2,ValueFromPipeline=$TRUE,ValueFromPipelineByPropertyName)]
+	[ValidateNotNullOrEmpty()]
+	[string]$Property,
+	[Parameter(ParameterSetName = "OneAppStack",Position = 2,ValueFromPipeline=$TRUE,ValueFromPipelineByPropertyName)]
+	[ValidateNotNullOrEmpty()]
+	[string]$Value
+)
+process{
+	$uri = "$($session.Uri)/cv_api/appstacks/$AppStackId"
+
+
+	$uri = "$uri/$AppStackId"
+	$result = (Internal-Rest -Session $Session -Uri $uri -Method Put).appstack
+
+
+
+
+	return $result|ft
+}
+}
 Export-ModuleMember Set-AppVolAppStack
 
-   
+
 
 <# 
  .Synopsis
@@ -323,33 +326,33 @@ Export-ModuleMember Set-AppVolAppStack
 function Add-AppVolAppStackAssignment{
 param(
 
-    [PSCustomObject]$Session,
-    
-    [int]$AppStack,
-    [string]$ADObject
+ [PSCustomObject]$Session,
+
+[int]$AppStack,
+[string]$ADObject
 )
 $uri = "$($session.Uri)/cv_api/assignments"
 
 $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
 $headers.Add("X-CSRF-Token",$Session.Token)
-$Search = New-Object DirectoryServices.DirectorySearcher([ADSI]â€œâ€)
-$Search.filter = â€œ(&(sAMAccountName=$ADObject))â€
-$ADResults=$Search.Findall()
-$assignments=@{
-entity_type=($ADResults[0].Properties["objectclass"])[($ADResults[0].Properties["objectclass"]).Count-1]
-path=$($ADResults[0].Properties["DistinguishedName"])
+$Search = New-Object DirectoryServices.DirectorySearcher([ADSI]“”)
+$Search.filter = “(&(sAMAccountName=$ADObject))”
+$ADResults = $Search.Findall()
+$assignments = @{
+	entity_type=($ADResults[0].Properties["objectclass"])[($ADResults[0].Properties["objectclass"]).Count-1]
+	path=$($ADResults[0].Properties["DistinguishedName"])
 }
 
 $json = @{
-        "action_type"= "Assign"
-        "id"=$AppStack
-        "assignments"=@{"0"=$assignments}
-        "rtime"= "false"
-        "mount_prefix"= $null
-    }
-    $body=$json|ConvertTo-Json -Depth 3
+	"action_type"= "Assign"
+	"id"=$AppStack
+	"assignments"=@{"0"=$assignments}
+	"rtime"= "false"
+	"mount_prefix"= $null
+}
+$body = $json|ConvertTo-Json -Depth 3
 #$result=Invoke-RestMethod -Uri $uri -Method post -WebSession $Session.Session -Headers $headers -Body $json 
-$result=Invoke-RestMethod -Uri $uri -Method post -WebSession $Session.Session -Headers $headers -Body $body -ContentType "application/json" 
+$result = Invoke-RestMethod -Uri $uri -Method post -WebSession $Session.Session -Headers $headers -Body $body -ContentType "application/json" 
 [hashtable]$Return = @{} 
 $Return.result=($result|Get-Member -MemberType NoteProperty)[-1].Name
 $Return.message=$result.(($result|Get-Member -MemberType NoteProperty)[-1].Name)
@@ -359,38 +362,38 @@ return $Return
 }
 Export-ModuleMember Add-AppVolAppStackAssignment
 Function Internal-Rest {
- param(
-        [Parameter(Position = 1,Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [PSCustomObject]$Session,
+	param(
+		[Parameter(Position = 1,Mandatory = $true)]
+		[ValidateNotNullOrEmpty()]
+		[PSCustomObject]$Session,
 
-        [Parameter(Position = 2,Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [ValidateScript({ ([System.URI]$_).IsAbsoluteUri })]
-        [string]$Uri,
-        
-        [Parameter(Position = 3,Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
-        [Microsoft.PowerShell.Commands.WebRequestMethod]$Method = [Microsoft.PowerShell.Commands.WebRequestMethod]::Get,
-        
-        [Parameter(Position = 4,Mandatory = $false)]
-        [ValidateNotNullOrEmpty()]
-        [string]$Body
-        
-        )
-        switch ([Microsoft.PowerShell.Commands.WebRequestMethod]$Method) {
-         
-         Put {$cmd = {Invoke-RestMethod -Uri $Uri -Method $Method -WebSession $Session.Session -Headers $Session.Headers -Body $Body -ContentType "application/json"}}
-         Post {$cmd = {Invoke-RestMethod -Uri $Uri -Method $Method -WebSession $Session.Session -Headers $Session.Headers -Body $Body -ContentType "application/json"}}
-         default { $cmd = {Invoke-RestMethod -Uri $Uri -Method $Method -WebSession $Session.Session -Headers $Session.Headers -ContentType "application/json"}}
-        }
+		[Parameter(Position = 2,Mandatory = $true)]
+		[ValidateNotNullOrEmpty()]
+		[ValidateScript({ ([System.URI]$_).IsAbsoluteUri })]
+		[string]$Uri,
 
-    try{
+		[Parameter(Position = 3,Mandatory = $false)]
+		[ValidateNotNullOrEmpty()]
+		[Microsoft.PowerShell.Commands.WebRequestMethod]$Method = [Microsoft.PowerShell.Commands.WebRequestMethod]::Get,
 
-        return Invoke-Command $cmd
-    }
-    catch{
-    return $null
-    }
+		[Parameter(Position = 4,Mandatory = $false)]
+		[ValidateNotNullOrEmpty()]
+		[string]$Body
+
+	)
+	switch ([Microsoft.PowerShell.Commands.WebRequestMethod]$Method) {
+
+		Put {$cmd = {Invoke-RestMethod -Uri $Uri -Method $Method -WebSession $Session.Session -Headers $Session.Headers -Body $Body -ContentType "application/json"}}
+		Post {$cmd = {Invoke-RestMethod -Uri $Uri -Method $Method -WebSession $Session.Session -Headers $Session.Headers -Body $Body -ContentType "application/json"}}
+		default { $cmd = {Invoke-RestMethod -Uri $Uri -Method $Method -WebSession $Session.Session -Headers $Session.Headers -ContentType "application/json"}}
+	}
+
+	try{
+
+		return Invoke-Command $cmd
+	}
+	catch{
+		return $null
+	}
 }
 
