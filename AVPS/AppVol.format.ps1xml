@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-16"?>
+<Configuration>
+  <ViewDefinitions>
+<View>
+  <Name>App Volumes Session</Name>
+  <ViewSelectedBy>
+    <TypeName>AppVolSession</TypeName>
+  </ViewSelectedBy>
+  <TableControl>
+    <TableHeaders>
+      <TableColumnHeader>
+        <Label>Service Url</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Service Version</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Service Version</Label>
+      </TableColumnHeader>
+    </TableHeaders>
+    <TableRowEntries>
+      <TableRowEntry>
+        <TableColumnItems>
+          <TableColumnItem>
+            <PropertyName>Uri</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>Version</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>SessionStart</PropertyName>
+          </TableColumnItem>
+        </TableColumnItems>
+      </TableRowEntry>
+    </TableRowEntries>
+  </TableControl>
+</View>
+<View>
+  <Name>App Volumes Version</Name>
+  <ViewSelectedBy>
+    <TypeName>AppVolVersion</TypeName>
+  </ViewSelectedBy>
+  <TableControl>
+    <TableHeaders>
+      <TableColumnHeader>
+        <Label>Version</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Internal Version</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Copyright</Label>
+      </TableColumnHeader>
+    </TableHeaders>
+    <TableRowEntries>
+      <TableRowEntry>
+        <TableColumnItems>
+          <TableColumnItem>
+            <PropertyName>Version</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>InternalVersion</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>Copyright</PropertyName>
+          </TableColumnItem>
+        </TableColumnItems>
+      </TableRowEntry>
+    </TableRowEntries>
+  </TableControl>
+</View>
+  </ViewDefinitions>
+</Configuration>
