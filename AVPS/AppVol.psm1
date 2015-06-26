@@ -189,7 +189,7 @@ param(
 	[Parameter(ParameterSetName = "AllAppStacks",Position = 1,ValueFromPipeline=$false,Mandatory = $false)]
 	[switch] $All,
 	[Parameter(ParameterSetName = "SelectedAppStack",Mandatory = $false,Position = 2,ValueFromPipeline=$TRUE,ValueFromPipelineByPropertyName=$true, ValueFromRemainingArguments=$false,HelpMessage="Enter one or more AppStack IDs separated by commas.")]
-	[Alias('id')]
+	[Alias('id','VolumeId')]
 	[ValidateNotNull()]
 	[int[]]$AppStackIds,
 
@@ -476,6 +476,255 @@ Select-Object -Property name,file_location
 }
 
 
+function Get-AppVolAssignment{
+	[CmdletBinding(DefaultParameterSetName = "AllAssignments")]
+	param(
+		[Parameter(ParameterSetName = "AllAssignments",Position = 1,ValueFromPipeline=$false,Mandatory = $false)]
+		[switch] $All,
+		
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 2)]
+		[ValidateNotNull()]
+		[string]$EntityDn,
+
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 2)]
+		[ValidateNotNull()]
+		[string]$EntitySamAccountName,
+
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 2)]
+		[ValidateNotNull()]
+		[string]$EntityDomain,
+
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 2)]
+		[ValidateNotNull()]
+		[Vmware.Appvolumes.EntityType]$EntityType,
+
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 2)]
+		[ValidateNotNull()]
+		[DateTime]$EventTime,
+
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 2)]
+		[ValidateNotNull()]
+		[string]$MountPrefix,
+
+		
+	    [Parameter(ParameterSetName = "SelectedAssignment",Mandatory = $false,Position = 2,ValueFromPipeline=$TRUE,ValueFromPipelineByPropertyName=$true, ValueFromRemainingArguments=$false,HelpMessage="Enter one or more AppStack IDs separated by commas.")]
+	    [Alias('id')]
+		[ValidateNotNull()]
+		[int]$VolumeId,
+
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 2)]
+		[ValidateNotNull()]
+		[string]$VolumeName,
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 3)]
+		[Parameter(ParameterSetName = "FilteredAssignmentExact",Mandatory = $false,Position = 3)]
+		[switch]$Exact,
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 3)]
+		[Parameter(ParameterSetName = "FilteredAssignmentLike",Mandatory = $false,Position = 3)]
+		[switch]$Like,
+
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 3)]
+		[Parameter(ParameterSetName = "FilteredAssignmentGreater",Mandatory = $false,Position = 3)]
+		[switch]$ge,
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 3)]
+		[Parameter(ParameterSetName = "FilteredAssignmentLess",Mandatory = $false,Position = 3)]
+		[switch]$le,
+
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 3)]
+		[Parameter(ParameterSetName = "FilteredAssignmentGreater",Mandatory = $false,Position = 3)]
+		[switch]$gt,
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 3)]
+		[Parameter(ParameterSetName = "FilteredAssignmentLess",Mandatory = $false,Position = 3)]
+		[switch]$lt,
+
+
+		[Parameter(ParameterSetName = "FilteredAssignment",Mandatory = $false,Position = 3)]
+		[Parameter(ParameterSetName = "FilteredAssignmentNot",Mandatory = $false,Position = 4)]
+		[switch]$Not
+
+	)
+	begin{
+
+
+		[Vmware.Appvolumes.AppVolumesAssignment[]]$Assignments = $null
+
+	}
+
+	process{
+
+		$rooturi = "$($Global:GlobalSession.Uri)cv_api/assignments"
+		switch ($PsCmdlet.ParameterSetName){ 
+			"AllAssignments"{
+
+				$tmp = (Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get).assignments
+				foreach ($Assignment in $tmp){
+
+
+					$Assignments += Internal-PopulateAssignment $Assignment
+				}
+
+			}
+			"SelectedAssignment"{
+					$tmp = (Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get).assignments
+				    foreach ($Assignment in $tmp){
+                    
+                    $tmpAssignment = Internal-PopulateAssignment $Assignment
+                    if ($tmpAssignment.VolumeId -eq $VolumeId)
+                    {
+                        $Assignments += $tmpAssignment
+                    }
+				}
+			}
+			"FilteredAssignment"{
+				$tmp = (Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get).assignments
+				foreach ($instance in $tmp){
+					
+					$locAssignment = Internal-PopulateAssignment $instance
+					foreach ($param in $($PSCmdlet.MyInvocation.BoundParameters.Keys))
+					{
+
+						switch ($PSCmdlet.MyInvocation.BoundParameters[$param].GetType().Name)
+						{
+							"String"
+							{
+								if ($Exact)
+								{
+									if ($locAssignment.$Param -eq $PSCmdlet.MyInvocation.BoundParameters[$param] -and (-not $Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+									elseif ($locAssignment.$Param -ne $PSCmdlet.MyInvocation.BoundParameters[$param] -and ($Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+								}
+								if ($Like -or ((-not $Exact )-and (-not $Like )-and (-not $Exact )))
+								{
+									if ($locAssignment.$Param -like "*"+$PSCmdlet.MyInvocation.BoundParameters[$param]+"*" -and (-not $Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+									elseif ($locAssignment.$Param -notlike "*"+$PSCmdlet.MyInvocation.BoundParameters[$param]+"*" -and ($Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+								} 
+							}
+							"AssignmentStatus"
+
+							{
+
+								if ($locAssignment.$Param -eq $PSCmdlet.MyInvocation.BoundParameters[$param] -and (-not $Not ))
+								{
+									$Assignments += Internal-PopulateAssignment $instance
+								}
+								elseif ($locAssignment.$Param -ne $PSCmdlet.MyInvocation.BoundParameters[$param] -and ($Not ))
+								{
+									$Assignments += Internal-PopulateAssignment $instance
+								}
+
+							}
+							{($_ -match "Int") -or ($_ -eq "DateTime")}
+							{
+								if ($Exact -or ((-not $Exact )-and (-not $gt )-and (-not $lt )-and (-not $ge )-and (-not $le )))
+								{
+									if ($locAssignment.$Param -eq $PSCmdlet.MyInvocation.BoundParameters[$param] -and (-not $Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+									elseif ($locAssignment.$Param -ne $PSCmdlet.MyInvocation.BoundParameters[$param] -and ($Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+								}
+								if ($gt)
+								{
+									if ($locAssignment.$Param -gt $PSCmdlet.MyInvocation.BoundParameters[$param] -and (-not $Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+									elseif ($locAssignment.$Param -le $PSCmdlet.MyInvocation.BoundParameters[$param] -and ($Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+								}
+								if ($lt)
+								{
+									if ($locAssignment.$Param -lt $PSCmdlet.MyInvocation.BoundParameters[$param] -and (-not $Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+									elseif ($locAssignment.$Param -ge $PSCmdlet.MyInvocation.BoundParameters[$param] -and ($Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+								}
+								if ($ge)
+								{
+									if ($locAssignment.$Param -ge $PSCmdlet.MyInvocation.BoundParameters[$param] -and (-not $Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+									elseif ($locAssignment.$Param -lt $PSCmdlet.MyInvocation.BoundParameters[$param] -and ($Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+								}
+								if ($le)
+								{
+									if ($locAssignment.$Param -le $PSCmdlet.MyInvocation.BoundParameters[$param] -and (-not $Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+									elseif ($locAssignment.$Param -gt $PSCmdlet.MyInvocation.BoundParameters[$param] -and ($Not ))
+									{
+										$Assignments += Internal-PopulateAssignment $instance
+									}
+								}
+
+
+							}
+						}
+
+					}
+
+
+				}
+
+			}
+		}
+	} 
+	end{
+
+
+		return $Assignments
+
+	}
+	<# 
+ .Synopsis
+  Returns AppVolumes Manager Assignment(s).
+
+ .Description
+  Returns AppVolumes Manager Assignment(s).
+
+ .Parameter Session
+  App Volumes Manager Session.
+ 
+ .Parameter All
+  Return All Assignments
+ .Parameter AssignmentIds
+  Assignment ID
+ .Example
+  $session=Open-AppVolSession http://appvol01.corp.itbubble.ru fdwl P@ssw0rd
+Get-AppVolAssignment 
+Where-Object {$_.status -ne "enabled"} |
+Select-Object -Property id|
+Get-AppVolAssignment -Session $session|
+Select-Object -Property name,file_location
+    
+#>
+}
+
+
 
 
 <# 
@@ -676,6 +925,25 @@ Function Internal-PopulateAppStack
 	return $appStack
 }
 
+Function Internal-PopulateAssignment 
+{
+	param (
+		$instance 
+
+	)
+	$Assignment = New-Object -TypeName Vmware.Appvolumes.AppVolumesAssignment
+	$Assignment.EntityDn=$instance.entity_dn
+	$Assignment.EntitySamAccountName=$instance.entity_upn.Split('\')[1]
+	$Assignment.EntityDomain=$instance.entity_upn.Split('\')[0]
+	$Assignment.EntityType=$instance.entityt
+	$Assignment.EventTime=$instance.event_time
+	$Assignment.MountPrefix=$instance.mount_prefix
+	$Assignment.VolumeId=$instance.snapvol_id
+	$Assignment.VolumeName=$instance.snapvol_name
+	return $Assignment
+}
+
+
 Add-Type -ReferencedAssemblies (Get-Module Microsoft.PowerShell.Utility).NestedModules[0].Path @"
 using System;
 using Microsoft.PowerShell;
@@ -737,12 +1005,32 @@ namespace Vmware.Appvolumes
         Unreachable = 11,
          
     }
+    public enum EntityType
+    {
+        User = 0,
+        Computer = 1,
+        Group = 2,
+        OrgUnit = 3,
+         
+    }
     public class AppStackOS
     {
         public int Id;
         public string Name;
     }
-
+    public class AppVolumesAssignment
+    {
+        
+        public string EntityDn;
+        public string EntitySamAccountName;
+        public string EntityDomain;
+        public EntityType EntityType;
+        public DateTime EventTime;
+        public String MountPrefix;
+        public int VolumeId;
+        public string VolumeName;
+        
+    }
 }
 "@ 
 
