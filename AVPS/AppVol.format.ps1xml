@@ -4,7 +4,7 @@
 <View>
   <Name>App Volumes Session</Name>
   <ViewSelectedBy>
-    <TypeName>AppVolSession</TypeName>
+    <TypeName>Vmware.Appvolumes.AppVolumesSession</TypeName>
   </ViewSelectedBy>
   <TableControl>
     <TableHeaders>
@@ -38,7 +38,7 @@
 <View>
   <Name>App Volumes Version</Name>
   <ViewSelectedBy>
-    <TypeName>AppVolVersion</TypeName>
+    <TypeName>Vmware.Appvolumes.AppVolumesVersion</TypeName>
   </ViewSelectedBy>
   <TableControl>
     <TableHeaders>
