@@ -1092,7 +1092,7 @@ namespace Vmware.Appvolumes
  
 {
 
- public System.Collections.Generic.Dictionary<string,string> Headers;
+ 
  public Microsoft.PowerShell.Commands.WebRequestSession Session;
  public DateTime SessionStart;
  public Uri Uri;
