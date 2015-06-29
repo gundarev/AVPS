@@ -6,14 +6,8 @@
   param(
     [Parameter(ParameterSetName = "AppVolSession",Position = 1,Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
-    [ValidateScript(
-      {
-
-        ([System.URI]$_).IsAbsoluteUri
-
-      }
-    )]
-    [string]$Uri,
+    [ValidateScript({([System.URI]$_).IsAbsoluteUri})]
+    [Uri]$Uri,
 
     [Parameter(ParameterSetName = "AppVolSession",Position = 2,Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
@@ -23,41 +17,31 @@
     [ValidateNotNullOrEmpty()]
     [string]$Password
   )
-
-  try
+  begin
   {
-    $result1 = Invoke-WebRequest -Uri $Uri/login -Method Get -SessionVariable session
-    $authentity_token = @( $result1.ParsedHtml.getElementsByName("authenticity_token")).value
-    $admincredentials = @{ 'user[account_name]' = $($Username); 'user[password]' = $($Password); 'authentity_token' = $($authentity_token)}
-
-    $result = Invoke-WebRequest -Uri $Uri/login -Method POST -SessionVariable session -Body $admincredentials
-    $csrf_token = @( $result.ParsedHtml.getElementsByName("csrf-token")).content
-    if (-not ([string]::IsNullOrEmpty($csrf_token)))
+    $rooturi="$($Uri)cv_api/sessions"
+    $admincredentials = (@{ 'username' = $($Username); 'password' = $($Password)})|ConvertTo-Json
+    try
     {
-      $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
-      $headers.Add("X-CSRF-Token",$csrf_token)
+        $result= Invoke-WebRequest -Uri $rooturi -SessionVariable session -Method Post -Body $admincredentials -ContentType "application/json"
+        $Global:GlobalSession = New-Object Vmware.Appvolumes.AppVolumesSession
+        $Global:GlobalSession.Session = $session
+        $Global:GlobalSession.Uri = $Uri
+        $version = Get-AppVolVersion
+        $Global:GlobalSession.Version = $version.Version
+        $Global:GlobalSession.SessionStart = $session.Cookies.GetCookies($(([uri]$Uri).AbsoluteUri))["_session_id"].TimeStamp
 
-      $Global:GlobalSession = New-Object Vmware.Appvolumes.AppVolumesSession
-      $Global:GlobalSession.Headers = $headers
-      $Global:GlobalSession.Session = $session
-      $Global:GlobalSession.Uri = [uri]$Uri
-      $version = Get-AppVolVersion
-      $Global:GlobalSession.Version = $version.Version
-      $Global:GlobalSession.SessionStart = $session.Cookies.GetCookies($(([uri]$Uri).AbsoluteUri))["_session_id"].TimeStamp
-
-      return $Global:GlobalSession
+        return $Global:GlobalSession
     }
-    else
+    catch
     {
-      Write-Output "Invalid credentials or Uri"
-      return $false
+        Write-Output "Invalid credentials or Uri"
+        return $false
     }
   }
-  catch
-  {
-    Write-Output $_.Exception
-    return $false
-  }
+
+
+ 
 
   <# 
 .Synopsis
