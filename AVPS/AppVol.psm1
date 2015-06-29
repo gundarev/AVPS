@@ -1,4 +1,5 @@
-﻿function Open-AppVolSession
+﻿#.ExternalHelp AppVol.psm1-help.xml
+function Open-AppVolSession
 
 {
 
@@ -71,6 +72,7 @@ Open-AppVolSession  http://manager.domain.com admin  password1
 #>
 }
 
+#.ExternalHelp AppVol.psm1-help.xml
 function Test-AppVolSession
 {
   if ($Global:GlobalSession)
@@ -82,53 +84,24 @@ function Test-AppVolSession
     Write-Output "No open App Volumes Manager session available!"
     break
   }
-  <# 
- .SYNOPSIS
- Test Current App Volumes Manager Session
- .DESCRIPTION
- Test Current App Volumes Manager Session, does not return anything if session is open.
- .EXAMPLE
- Test-AppVolSession
- #>
+ 
 }
 
+#.ExternalHelp AppVol.psm1-help.xml
 function Close-AppVolSession
 {
-  Test-AppVolSession
-  try
-  {
-    $uri = "$($Global:GlobalSession.Uri)logout"
-    $tmp = Invoke-WebRequest -Uri $uri -Method Get -MaximumRedirection 0 -ErrorAction Ignore -WebSession $Global:GlobalSession.Session -Headers $Global:GlobalSession.Headers
-
-    $Global:GlobalSession = $null
-  }
-  catch
-  {
-    Write-Output $_.Exception
-    Remove-Variable GlobalSession= -Scope Global
-  }
-  Write-Output "Session Destroyed"
-
-  <# 
-.Synopsis
- Closes an existing AppVolumes Manager Session.
-
-.Description
- Closes an existing AppVolumes Manager Session.
-
-.Parameter Session
- App Volumes Manager Sesion Object.
-
-.OUTPUTS
-None
-.Example
- # Login to the App Volumes manager.
- $session=Open-AppVolSession -Uri "http://appvol.domain.com" -Username "admin" -Password "P@ssw0rd"
- # Logoff from the App Volumes manager.
- Close-AppVolSession 
- 
-#>
-
+    Test-AppVolSession
+    try
+    {
+        $rooturi="$($Global:GlobalSession.Uri)cv_api/sessions"
+        $result= Invoke-WebRequest -Uri $rooturi -WebSession $Global:GlobalSession.Session -Method Delete -ContentType "application/json"
+        $Global:GlobalSession = $null
+        return ($result.content)|ConvertFrom-Json
+    }
+    catch
+    {
+        Write-Output $_.Exception
+    }
 }
 
 function Get-AppVolVersion
