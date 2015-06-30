@@ -1,4 +1,319 @@
-﻿#.ExternalHelp AppVol.psm1-help.xml
+﻿#region Internal Functions
+function Internal-CheckFilter
+{
+param ($params)
+[regex] $RegexParams = '(?i)^(All|VolumeId|ErrorAction|WarningAction|Verbose|Debug|ErrorVariable|WarningVariable|OutVariable|OutBuffer|PipelineVariable)$'
+if ($($params -notmatch $RegexParams).count -gt 0){return $true}else{return $false}
+}
+
+
+
+function Internal-Rest
+{
+
+  param(
+    [Parameter(Position = 1,Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [pscustomobject]$Session,
+
+    [Parameter(Position = 2,Mandatory = $true)]
+    [ValidateNotNullOrEmpty()]
+    [ValidateScript({([System.URI]$_).IsAbsoluteUri})]
+    [string]$Uri,
+
+    [Parameter(Position = 3,Mandatory = $false)]
+    [ValidateNotNullOrEmpty()]
+    [Microsoft.PowerShell.Commands.WebRequestMethod]$Method = [Microsoft.PowerShell.Commands.WebRequestMethod]::Get,
+
+    [Parameter(Position = 4,Mandatory = $false)]
+    [ValidateNotNullOrEmpty()]
+    [string]$Body
+
+  )
+  switch ([Microsoft.PowerShell.Commands.WebRequestMethod]$Method)
+  {
+
+    Put
+    {$cmd ={Invoke-RestMethod -Uri $Uri -Method $Method -WebSession $Session.Session -Headers $Session.Headers -Body $Body -ContentType "application/json"}}
+    Post
+    {$cmd ={Invoke-RestMethod -Uri $Uri -Method $Method -WebSession $Session.Session -Headers $Session.Headers -Body $Body -ContentType "application/json"}}
+
+    default
+    {$cmd ={Invoke-RestMethod -Uri $Uri -Method $Method -WebSession $Session.Session -Headers $Session.Headers -ContentType "application/json"}}
+  }
+  try
+  {
+    return Invoke-Command $cmd
+  }
+  catch
+  {
+    return $null
+  }
+}
+
+
+function Internal-FilterResults
+{
+  param(
+    $Entity
+  )
+  $EntityList = $null
+  foreach ($CurrentParameter in $($PSCmdlet.MyInvocation.BoundParameters.Keys))
+
+  {
+    if (-not (@('VolumeId','All','Not','VolumeID') -contains $CurrentParameter ) )
+    {
+      switch ($PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter].GetType().Name)
+      {
+        "String"
+        {
+          if ($Exact)
+          {
+            if ($Entity.$CurrentParameter -eq $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
+            {
+              $EntityList += $Entity
+            }
+            elseif ($Entity.$CurrentParameter -ne $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
+            {
+              $EntityList += $Entity
+            }
+          }
+          if ($Like -or ((-not $Exact) -and (-not $Like) -and (-not $Exact)))
+          {
+            if ($Entity.$CurrentParameter -like "*" + $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] + "*" -and (-not $Not))
+            {
+              $EntityList += $Entity
+            }
+            elseif ($Entity.$CurrentParameter -notlike "*" + $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] + "*" -and ($Not))
+            {
+              $EntityList += $Entity
+            }
+          }
+        }
+        "AssignmentStatus"
+        {
+          if ($Entity.$CurrentParameter -eq $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
+          {
+            $EntityList += $Entity
+          }
+          elseif ($Entity.$CurrentParameter -ne $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
+          {
+            $EntityList += $Entity
+          }
+        }
+        {($_ -match "Int") -or ($_ -eq "DateTime")}
+        {
+          if ($Exact -or ((-not $Exact) -and (-not $gt) -and (-not $lt) -and (-not $ge) -and (-not $le)))
+          {
+            if ($Entity.$CurrentParameter -eq $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
+            {
+              $EntityList += $Entity
+            }
+            elseif ($Entity.$CurrentParameter -ne $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
+            {
+              $EntityList += $Entity
+            }
+          }
+          if ($gt)
+          {
+            if ($Entity.$CurrentParameter -gt $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
+            {
+              $EntityList += $Entity
+            }
+            elseif ($Entity.$CurrentParameter -le $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
+            {
+              $EntityList += $Entity
+            }
+          }
+          if ($lt)
+          {
+            if ($Entity.$CurrentParameter -lt $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
+            {
+              $EntityList += $Entity
+            }
+            elseif ($Entity.$CurrentParameter -ge $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
+            {
+              $EntityList += $Entity
+            }
+          }
+          if ($ge)
+          {
+            if ($Entity.$CurrentParameter -ge $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
+            {
+              $EntityList += $Entity
+            }
+            elseif ($Entity.$CurrentParameter -lt $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
+            {
+              $EntityList += $Entity
+            }
+          }
+          if ($le)
+          {
+            if ($Entity.$CurrentParameter -le $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
+            {
+              $EntityList += $Entity
+            }
+            elseif ($Entity.$CurrentParameter -gt $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
+            {
+              $EntityList += $Entity
+            }
+          }
+        }
+        {($_ -eq "Guid") -or ($_ -eq "AppStackStatus")}
+        {
+          if ($Entity.$CurrentParameter -eq $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
+          {
+            $EntityList += $Entity
+          }
+          elseif ($Entity.$CurrentParameter -ne $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
+          {
+            $EntityList += $Entity
+          }
+        }
+        {(($_ -eq "SwitchParameter") -and (-not (@('gt','ge','lt','le', 'Exact', 'Like', 'Not') -contains $CurrentParameter )))}
+        {
+          if ($Entity.$CurrentParameter -eq $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
+          {
+            $EntityList += $Entity
+          }
+            elseif ($Entity.$CurrentParameter -ne $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
+          {
+            $EntityList += $Entity
+          }
+        }
+      }
+    }
+  }
+
+  return $EntityList
+
+}
+
+function Internal-PopulateAppStack
+
+{
+
+  param(
+    $instance
+
+  )
+  $appStack = New-Object -TypeName Vmware.Appvolumes.AppVolumesAppStack
+  $appStack.id = $instance.id
+  $appStack.DataStore = $instance.datastore_name
+  $appStack.Name = $instance.Name
+  $appStack.path = $instance.path
+  $appStack.FileName = $instance.FileName
+  $appStack.Description = $instance.desctiption
+  $appStack.Status = $instance.Status
+  if ($instance.created_at)
+  {
+
+    $appStack.CreatedAt = $instance.created_at
+
+  }
+
+  if ($instance.mounted_at)
+  {
+
+    $appStack.MountedAt = $instance.mounted_at
+
+  }
+
+  $appStack.Size = $instance.size_mb
+  $appStack.TemplateVersion = $instance.template_version
+  $appStack.MountCount = $instance.mount_count
+  $appStack.AssignmentsTotal = $instance.assignments_total
+  $appStack.AttachmentsTotal = $instance.attachments_total
+  $appStack.LocationCount = $instance.location_count
+  $appStack.ApplicationCount = $instance.application_count
+  if ($instance.volume_guid)
+
+  {
+
+    $appStack.VolumeGuid = $instance.volume_guid
+
+
+  }
+
+  $appStack.TemplateFileName = $instance.template_file_name
+  $appStack.AgentVersion = $instance.agent_version
+  $appStack.CaptureVersion = $instance.capture_version
+  $os = New-Object -TypeName Vmware.Appvolumes.AppStackOs
+  $os.id = $instance.primordial_os_id
+  $os.Name = $instance.primordial_os_name
+  $appStack.PrimordialOs = $os
+  [Vmware.Appvolumes.AppStackOs[]]$oses = $null
+  foreach ($tmpos in $instance.oses)
+
+  {
+
+    $tmpAsos = New-Object -TypeName Vmware.Appvolumes.AppStackOs
+    $tmpAsos.Name = $tmpos.Name
+    $tmpAsos.id = $tmpos.id
+    $oses += $tmpAsos
+
+
+  }
+
+  $appStack.oses = $oses
+  $appStack.ProvisonDuration = $instance.provision_duration
+  return $appStack
+
+}
+
+function Internal-PopulateAssignment
+
+{
+
+  param(
+    $instance
+
+  )
+  $Assignment = New-Object -TypeName Vmware.Appvolumes.AppVolumesAssignment
+  $Assignment.EntityDn = $instance.entity_dn
+  $Assignment.EntitySamAccountName = $instance.entity_upn.Split('\')[1]
+  $Assignment.EntityDomain = $instance.entity_upn.Split('\')[0]
+  $Assignment.EntityType = $instance.entityt
+  $Assignment.EventTime = $instance.event_time
+  $Assignment.MountPrefix = $instance.mount_prefix
+  $Assignment.VolumeId = $instance.snapvol_id
+  $Assignment.VolumeName = $instance.snapvol_name
+  return $Assignment
+
+}
+
+function Internal-PopulateAppStackFile
+
+{
+
+  param(
+    $instance
+
+  )
+  $AppStackFile = New-Object -TypeName Vmware.Appvolumes.AppVolumesAppStackFile
+  $AppStackFile.Name = $instance.Name
+  $AppStackFile.MachineManagerType = $instance.machine_manager_type
+  $AppStackFile.MachineManagerHost = $instance.machine_manager_host
+  if ($instance.created_at)
+  {
+
+    $AppStackFile.CreatedAt = $instance.created_at
+
+  }
+
+  $AppStackFile.Missing = $instance.Missing
+  $AppStackFile.Reachable = $instance.Reachable
+
+  $AppStackFile.path = $instance.path
+  $AppStackFile.DataStore = $instance.storage_location
+  return $AppStackFile
+
+}
+
+#endregion
+
+
+#.ExternalHelp AppVol.psm1-help.xml
 function Open-AppVolSession
 
 {
@@ -104,15 +419,16 @@ function Close-AppVolSession
     }
 }
 
+#.ExternalHelp AppVol.psm1-help.xml
 function Get-AppVolVersion
 {
   process
   {
     Test-AppVolSession
-    $uri = "$($Global:GlobalSession.Uri)cv_api/version"
+    $rooturi = "$($Global:GlobalSession.Uri)cv_api/version"
     try
     {
-      $result = Internal-Rest -Uri $uri -Method Get -Session $Global:GlobalSession
+      $result = Internal-Rest -Uri $rooturi -Method Get -Session $Global:GlobalSession
       $tmp = New-Object -TypeName Vmware.Appvolumes.AppVolumesVersion
       $tmp.Version = $result.Version
       $tmp.InternalVersion = $result.internal
@@ -125,139 +441,91 @@ function Get-AppVolVersion
       Write-Error $_.Exception
     }
   }
-
-  <# 
- .Synopsis
- Returns AppVolumes Manager Version.
-
- .Description
- Returns AppVolumes Manager Version.
-
- .Parameter Session
- App Volumes Manager Session.
-
- .Example
- # Login to the App Volumes manager.
- $session=New-AppVolSession -Uri "http://appvol.domain.com" -Username "admin" -Password "P@ssw0rd"
- Get-AppVolVersion 
- 
-#>
-
 }
 
+#.ExternalHelp AppVol.psm1-help.xml
 function Get-AppVolAppStack
 {
   [CmdletBinding(DefaultParameterSetName = "AllAppStacks")]
   param(
     [Parameter(ParameterSetName = "SelectedAppStack",Mandatory = $false,Position = 0,ValueFromPipeline = $TRUE,ValueFromPipelineByPropertyName = $true,ValueFromRemainingArguments = $false,HelpMessage = "Enter one or more AppStack IDs separated by commas.")]
     [Alias('id','AppStackId')]
-    [ValidateNotNullOrEmpty()]
+    [AllowNull()]
     [int[]]$VolumeID,
     
-    [Parameter(ParameterSetName = "AllAppStacks",Position = 1,ValueFromPipeline = $false,Mandatory = $false)]
+    [Parameter(ParameterSetName = "AllAppStacks",Position = 0)]
     [switch]$All,
     
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [string]$Name,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [string]$Path,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [string]$DataStore,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [string]$FileName,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [string]$Description,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [Vmware.Appvolumes.AppStackStatus]$Status,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [datetime]$CreatedAt,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [datetime]$MountedAt,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [int]$Size,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [string]$TemplateVersion,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [int]$MountCount,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [int]$AssignmentsTotal,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [int]$LocationCount,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [int]$ApplicationCount,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [guid]$VolumeGuid,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [string]$TemplateFileName,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [string]$AgentVersion,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [string]$CaptureVersion,
 
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$Exact,
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$Like,
 
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$ge,
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$le,
-
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$gt,
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$lt,
 
-    [Parameter(Mandatory = $false,Position = 4)]
     [switch]$Not
 
   )
   begin
   {
     Test-AppVolSession
-
-    [Vmware.Appvolumes.AppVolumesAppStack[]]$Appstacks = $null
-    [Vmware.Appvolumes.AppVolumesAppStack[]]$AppstacksFiltered = $null
-  }
-
-  process
-  {
+    [Vmware.Appvolumes.AppVolumesAppStack[]]$Entities = $null
+    [Vmware.Appvolumes.AppVolumesAppStack[]]$EntitiesFiltered = $null
     $rooturi = "$($Global:GlobalSession.Uri)cv_api/appstacks"
     switch ($PsCmdlet.ParameterSetName)
     {
@@ -268,93 +536,44 @@ function Get-AppVolAppStack
         {
           $uri = "$rooturi/$AppStackId"
           $instance = (Internal-Rest -Session $Global:GlobalSession -Uri $uri -Method Get).appstack
-          $Appstacks += Internal-PopulateAppStack $instance
+          $Entities += Internal-PopulateAppStack $instance
         } 
       } 
-      "SelectedAppStack"
-      {
-        foreach ($AppStackId in $VolumeID)
+      
+  }
+  }
+  process
+  {
+    
+     foreach ($AppStackId in $VolumeID)
         {
           $uri = "$rooturi/$AppStackId"
           $instance = (Internal-Rest -Session $Global:GlobalSession -Uri $uri -Method Get).appstack
 
-          $Appstacks += Internal-PopulateAppStack $instance
+          $Entities += Internal-PopulateAppStack $instance
         }
-      }
-    }
-    foreach ($AppStack in $Appstacks)
-    {
-      $AppstacksFiltered += Internal-FilterResults ($AppStack)
-    }
+        
+        
+   
   }
-
   end
   {
-    if ($AppstacksFiltered) { return $AppstacksFiltered }
-    else { return $Appstacks }
+  
+   if (Internal-CheckFilter $PSCmdlet.MyInvocation.BoundParameters.Keys) 
+   {
+   foreach ($Entitity in $Entities)
+    {
+      $EntitiesFiltered += Internal-FilterResults ($Entitity)
+      
+    }
+    return $EntitiesFiltered
+   }
+    
+    
+    else { return $Entities }
   }
 
-  <# 
- .Synopsis
- Returns AppVolumes Manager AppStack(s).
-
- .Description
- Returns AppVolumes Manager AppStack(s).
-
- .Parameter Session
- App Volumes Manager Session.
- 
- .Parameter All
- Return All AppStacks
- .Parameter VolumeID
- AppStack ID
- .Example
-Open-AppVolSession http://appvol01.corp.itbubble.ru fdwl P@ssw0rd
-
- # Return all available AppStacks
-Get-AppVolAppStack [-All] 
-
- # Return AppStacks with IDs 88 and 19
-Get-AppVolAppStack -VolumeID 88,19 
-
- # Return AppStacks with IDs 88 and 19 thru the pipe
-88,19|Get-AppVolAppStack 
-
- # Return all AppStacks where the name contains “office”
-Get-AppVolAppStack -Name office 
-
- # Return all AppStacks where the name NOT contains “office”
-Get-AppVolAppStack -Name office -Not  
-
- # Return all AppStacks where the name is exactly “office”
-Get-AppVolAppStack -Name office  -Exact 
-
- # Return AppStacks that has “cloudvolumes” in the datastore path
-Get-AppVolAppStack -Path "cloudvolumes" 
-
-# Return AppStacks located on datastore iSCSI
-Get-AppVolAppStack -DataStore iSCSI -Exact 
-
-# Return AppStacks where vmdk name contains word office
-Get-AppVolAppStack -FileName office 
-
-# Return AppStacks created after or on 4/28/2015
-Get-AppVolAppStack -CreatedAt "4/28/2015" –ge
-
-# Return AppStacks created after but not on 4/28/2015
-Get-AppVolAppStack -CreatedAt "4/28/2015" -gt  
-
- # Return AppStacks not mounted in past 30 days
-Get-AppVolAppStack -MountedAt $((get-date).AddDays(-30)) -ge -Not  
-
- # Return AppStacks with template version 2.5.1
-Get-AppVolAppStack -TemplateVersion "2.5.1" 
-
- # Return AppStacks that have 2 or more assignments
-Get-AppVolAppStack -AssignmentsTotal 2 -ge  
-
- 
-#>
+  
 
 }
 
@@ -742,453 +961,6 @@ function Add-TODOAppStackAssignment
 
 }
 
-function Internal-Rest
-{
-
-  param(
-    [Parameter(Position = 1,Mandatory = $true)]
-    [ValidateNotNullOrEmpty()]
-    [pscustomobject]$Session,
-
-    [Parameter(Position = 2,Mandatory = $true)]
-    [ValidateNotNullOrEmpty()]
-    [ValidateScript({([System.URI]$_).IsAbsoluteUri})]
-    [string]$Uri,
-
-    [Parameter(Position = 3,Mandatory = $false)]
-    [ValidateNotNullOrEmpty()]
-    [Microsoft.PowerShell.Commands.WebRequestMethod]$Method = [Microsoft.PowerShell.Commands.WebRequestMethod]::Get,
-
-    [Parameter(Position = 4,Mandatory = $false)]
-    [ValidateNotNullOrEmpty()]
-    [string]$Body
-
-  )
-  switch ([Microsoft.PowerShell.Commands.WebRequestMethod]$Method)
-  {
-
-    Put
-    {$cmd ={Invoke-RestMethod -Uri $Uri -Method $Method -WebSession $Session.Session -Headers $Session.Headers -Body $Body -ContentType "application/json"}}
-    Post
-    {$cmd ={Invoke-RestMethod -Uri $Uri -Method $Method -WebSession $Session.Session -Headers $Session.Headers -Body $Body -ContentType "application/json"}}
-
-    default
-    {$cmd ={Invoke-RestMethod -Uri $Uri -Method $Method -WebSession $Session.Session -Headers $Session.Headers -ContentType "application/json"}}
-  }
-  try
-  {
-    return Invoke-Command $cmd
-  }
-  catch
-  {
-    return $null
-  }
-}
-
-function Internal-FilterResults
-{
-  param(
-    $Entity
-  )
-  $EntityList = $null
-  foreach ($CurrentParameter in $($PSCmdlet.MyInvocation.BoundParameters.Keys))
-
-  {
-    if (-not (@('VolumeId','All','Not','VolumeID') -contains $CurrentParameter ) )
-    {
-      switch ($PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter].GetType().Name)
-      {
-        "String"
-        {
-          if ($Exact)
-          {
-            if ($Entity.$CurrentParameter -eq $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
-            {
-              $EntityList += $Entity
-            }
-            elseif ($Entity.$CurrentParameter -ne $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
-            {
-              $EntityList += $Entity
-            }
-          }
-          if ($Like -or ((-not $Exact) -and (-not $Like) -and (-not $Exact)))
-          {
-            if ($Entity.$CurrentParameter -like "*" + $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] + "*" -and (-not $Not))
-            {
-              $EntityList += $Entity
-            }
-            elseif ($Entity.$CurrentParameter -notlike "*" + $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] + "*" -and ($Not))
-            {
-              $EntityList += $Entity
-            }
-          }
-        }
-        "AssignmentStatus"
-        {
-          if ($Entity.$CurrentParameter -eq $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
-          {
-            $EntityList += $Entity
-          }
-          elseif ($Entity.$CurrentParameter -ne $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
-          {
-            $EntityList += $Entity
-          }
-        }
-        {($_ -match "Int") -or ($_ -eq "DateTime")}
-        {
-          if ($Exact -or ((-not $Exact) -and (-not $gt) -and (-not $lt) -and (-not $ge) -and (-not $le)))
-          {
-            if ($Entity.$CurrentParameter -eq $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
-            {
-              $EntityList += $Entity
-            }
-            elseif ($Entity.$CurrentParameter -ne $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
-            {
-              $EntityList += $Entity
-            }
-          }
-          if ($gt)
-          {
-            if ($Entity.$CurrentParameter -gt $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
-            {
-              $EntityList += $Entity
-            }
-            elseif ($Entity.$CurrentParameter -le $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
-            {
-              $EntityList += $Entity
-            }
-          }
-          if ($lt)
-          {
-            if ($Entity.$CurrentParameter -lt $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
-            {
-              $EntityList += $Entity
-            }
-            elseif ($Entity.$CurrentParameter -ge $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
-            {
-              $EntityList += $Entity
-            }
-          }
-          if ($ge)
-          {
-            if ($Entity.$CurrentParameter -ge $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
-            {
-              $EntityList += $Entity
-            }
-            elseif ($Entity.$CurrentParameter -lt $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
-            {
-              $EntityList += $Entity
-            }
-          }
-          if ($le)
-          {
-            if ($Entity.$CurrentParameter -le $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
-            {
-              $EntityList += $Entity
-            }
-            elseif ($Entity.$CurrentParameter -gt $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
-            {
-              $EntityList += $Entity
-            }
-          }
-        }
-        {($_ -eq "Guid") -or ($_ -eq "AppStackStatus")}
-        {
-          if ($Entity.$CurrentParameter -eq $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
-          {
-            $EntityList += $Entity
-          }
-          elseif ($Entity.$CurrentParameter -ne $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
-          {
-            $EntityList += $Entity
-          }
-        }
-        "SwitchParameter"
-        {
-          if ($Entity.$CurrentParameter -eq $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
-          {
-            $EntityList += $Entity
-          }
-            elseif ($Entity.$CurrentParameter -ne $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
-          {
-            $EntityList += $Entity
-          }
-        }
-      }
-    }
-  }
-
-  return $EntityList
-
-}
-
-function Internal-PopulateAppStack
-
-{
-
-  param(
-    $instance
-
-  )
-  $appStack = New-Object -TypeName Vmware.Appvolumes.AppVolumesAppStack
-  $appStack.id = $instance.id
-  $appStack.DataStore = $instance.datastore_name
-  $appStack.Name = $instance.Name
-  $appStack.path = $instance.path
-  $appStack.FileName = $instance.FileName
-  $appStack.Description = $instance.desctiption
-  $appStack.Status = $instance.Status
-  if ($instance.created_at)
-  {
-
-    $appStack.CreatedAt = $instance.created_at
-
-  }
-
-  if ($instance.mounted_at)
-  {
-
-    $appStack.MountedAt = $instance.mounted_at
-
-  }
-
-  $appStack.Size = $instance.size_mb
-  $appStack.TemplateVersion = $instance.template_version
-  $appStack.MountCount = $instance.mount_count
-  $appStack.AssignmentsTotal = $instance.assignments_total
-  $appStack.AttachmentsTotal = $instance.attachments_total
-  $appStack.LocationCount = $instance.location_count
-  $appStack.ApplicationCount = $instance.application_count
-  if ($instance.volume_guid)
-
-  {
-
-    $appStack.VolumeGuid = $instance.volume_guid
-
-
-  }
-
-  $appStack.TemplateFileName = $instance.template_file_name
-  $appStack.AgentVersion = $instance.agent_version
-  $appStack.CaptureVersion = $instance.capture_version
-  $os = New-Object -TypeName Vmware.Appvolumes.AppStackOs
-  $os.id = $instance.primordial_os_id
-  $os.Name = $instance.primordial_os_name
-  $appStack.PrimordialOs = $os
-  [Vmware.Appvolumes.AppStackOs[]]$oses = $null
-  foreach ($tmpos in $instance.oses)
-
-  {
-
-    $tmpAsos = New-Object -TypeName Vmware.Appvolumes.AppStackOs
-    $tmpAsos.Name = $tmpos.Name
-    $tmpAsos.id = $tmpos.id
-    $oses += $tmpAsos
-
-
-  }
-
-  $appStack.oses = $oses
-  $appStack.ProvisonDuration = $instance.provision_duration
-  return $appStack
-
-}
-
-function Internal-PopulateAssignment
-
-{
-
-  param(
-    $instance
-
-  )
-  $Assignment = New-Object -TypeName Vmware.Appvolumes.AppVolumesAssignment
-  $Assignment.EntityDn = $instance.entity_dn
-  $Assignment.EntitySamAccountName = $instance.entity_upn.Split('\')[1]
-  $Assignment.EntityDomain = $instance.entity_upn.Split('\')[0]
-  $Assignment.EntityType = $instance.entityt
-  $Assignment.EventTime = $instance.event_time
-  $Assignment.MountPrefix = $instance.mount_prefix
-  $Assignment.VolumeId = $instance.snapvol_id
-  $Assignment.VolumeName = $instance.snapvol_name
-  return $Assignment
-
-}
-
-function Internal-PopulateAppStackFile
-
-{
-
-  param(
-    $instance
-
-  )
-  $AppStackFile = New-Object -TypeName Vmware.Appvolumes.AppVolumesAppStackFile
-  $AppStackFile.Name = $instance.Name
-  $AppStackFile.MachineManagerType = $instance.machine_manager_type
-  $AppStackFile.MachineManagerHost = $instance.machine_manager_host
-  if ($instance.created_at)
-  {
-
-    $AppStackFile.CreatedAt = $instance.created_at
-
-  }
-
-  $AppStackFile.Missing = $instance.Missing
-  $AppStackFile.Reachable = $instance.Reachable
-
-  $AppStackFile.path = $instance.path
-  $AppStackFile.DataStore = $instance.storage_location
-  return $AppStackFile
-
-}
-
-Add-Type -ReferencedAssemblies (Get-Module Microsoft.PowerShell.Utility).NestedModules[0].path @"
-using System;
-using Microsoft.PowerShell;
-namespace Vmware.Appvolumes
-
-{
-
-
- public class AppVolumesVersion
- 
-{
-
- public string Version;
- public string InternalVersion;
- public string Copyright;
- 
-
-}
-
- public class AppVolumesSession
- 
-{
-
- 
- public Microsoft.PowerShell.Commands.WebRequestSession Session;
- public DateTime SessionStart;
- public Uri Uri;
- public string Version;
- 
-
-}
-
- public class AppVolumesAppStack
- 
-{
-
- public int Id;
- public string Name;
- public string Path;
- public string DataStore;
- public string FileName;
- public string Description;
- public AppStackStatus Status;
- public DateTime CreatedAt;
- public DateTime MountedAt;
- public int Size;
- public string TemplateVersion;
- public int MountCount;
- public int AssignmentsTotal;
- public int AttachmentsTotal;
- public int LocationCount;
- public int ApplicationCount;
- public Guid VolumeGuid;
- public string TemplateFileName;
- public string AgentVersion;
- public string CaptureVersion;
- public AppStackOS PrimordialOs;
- public AppStackOS[] Oses;
- public string ProvisonDuration;
- 
-
-}
-
- public enum AppStackStatus
- 
-{
-
- Missing = 0,
- Enabled = 1,
- Unprovisioned = 2,
- Provisioning = 3,
- Orphaned = 4,
- Legacy = 5,
- Creating = 6,
- Canceled = 7,
- Disabled = 8,
- Reserved = 9,
- Failed = 10,
- Unreachable = 11,
- 
- 
-
-}
-
- public enum EntityType
- 
-{
-
- User = 0,
- Computer = 1,
- Group = 2,
- OrgUnit = 3,
- 
- 
-
-}
-
- public class AppStackOS
- 
-{
-
- public int Id;
- public string Name;
- 
-
-}
-
- public class AppVolumesAssignment
- 
-{
-
- 
- public string EntityDn;
- public string EntitySamAccountName;
- public string EntityDomain;
- public EntityType EntityType;
- public DateTime EventTime;
- public String MountPrefix;
- public int VolumeId;
- public string VolumeName;
- 
- 
-
-}
-
- public class AppVolumesAppStackFile
- 
-{
-
- public int AppStackId;
- public string Name;
- public string MachineManagerType;
- public string MachineManagerHost;
- public DateTime CreatedAt;
- public bool Missing;
- public string Path;
- public string DataStore;
- public bool Reachable;
- 
- 
-
-}
-
-}
-
-"@
 
 if ($PSVersionTable.PSVersion.Major -lt 3)
 {

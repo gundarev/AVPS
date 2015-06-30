@@ -109,7 +109,11 @@
       <Examples>
         <Example>
           <Name>Example 1</Name>
-          <Cmd />
+          <Cmd>Open-AppVolSession -Uri "http://appvol.domain.com" -Username "admin" -Password "Password1"
+
+# Logoff from the App Volumes manager.
+Close-AppVolSession 
+</Cmd>
           <Description />
           <Output />
         </Example>
@@ -121,8 +125,10 @@
     <CmdletObject verb="Get" noun="AppVolVersion">
       <Name>Get-AppVolVersion</Name>
       <GeneralHelp>
-        <Synopsis />
-        <Description />
+        <Synopsis>Returns App Volumes Manager Version.
+</Synopsis>
+        <Description>Returns App Volumes Manager Version.
+</Description>
         <Notes />
         <InputType />
         <InputUrl />
@@ -138,7 +144,14 @@
         <string>Get-AppVolVersion</string>
       </Syntax>
       <Parameters />
-      <Examples />
+      <Examples>
+        <Example>
+          <Name>Example 1</Name>
+          <Cmd />
+          <Description />
+          <Output />
+        </Example>
+      </Examples>
       <RelatedLinks />
       <SupportInformation ad="false" rsat="false" ps2="false" ps3="false" ps4="false" ps5="false" wxp="false" wv="false" w7="false" w8="false" w81="false" w2k3s="false" w2k3e="false" w2k3d="false" w2k8s="false" w2k8e="false" w2k8d="false" w2k8r2s="false" w2k8r2e="false" w2k8r2d="false" w2k12s="false" w2k12d="false" w2k12r2s="false" w2k12r2d="false" />
       <Publish>false</Publish>
@@ -172,6 +185,612 @@
           <Output />
         </Example>
       </Examples>
+      <RelatedLinks />
+      <SupportInformation ad="false" rsat="false" ps2="false" ps3="false" ps4="false" ps5="false" wxp="false" wv="false" w7="false" w8="false" w81="false" w2k3s="false" w2k3e="false" w2k3d="false" w2k8s="false" w2k8e="false" w2k8d="false" w2k8r2s="false" w2k8r2e="false" w2k8r2d="false" w2k12s="false" w2k12d="false" w2k12r2s="false" w2k12r2d="false" />
+      <Publish>false</Publish>
+    </CmdletObject>
+    <CmdletObject verb="Get" noun="AppVolAppStack">
+      <Name>Get-AppVolAppStack</Name>
+      <GeneralHelp>
+        <Synopsis>Returns App Volumes Manager AppStack(s).</Synopsis>
+        <Description>Returns App Volumes Manager AppStack(s).
+</Description>
+        <Notes />
+        <InputType />
+        <InputUrl />
+        <InputTypeDescription />
+        <ReturnType />
+        <ReturnUrl />
+        <ReturnTypeDescription />
+      </GeneralHelp>
+      <ParamSets>
+        <CommandParameterSetInfo2 Name="AllAppStacks" Params="All Name Path DataStore FileName Description Status CreatedAt MountedAt Size TemplateVersion MountCount AssignmentsTotal LocationCount ApplicationCount VolumeGuid TemplateFileName AgentVersion CaptureVersion Exact Like ge le gt lt Not Verbose Debug ErrorAction WarningAction ErrorVariable WarningVariable OutVariable OutBuffer PipelineVariable" />
+        <CommandParameterSetInfo2 Name="SelectedAppStack" Params="VolumeID Name Path DataStore FileName Description Status CreatedAt MountedAt Size TemplateVersion MountCount AssignmentsTotal LocationCount ApplicationCount VolumeGuid TemplateFileName AgentVersion CaptureVersion Exact Like ge le gt lt Not Verbose Debug ErrorAction WarningAction ErrorVariable WarningVariable OutVariable OutBuffer PipelineVariable" />
+      </ParamSets>
+      <Syntax>
+        <string>Get-AppVolAppStack [[-All] &lt;SwitchParameter&gt;] [-Name &lt;String&gt;] [-Path &lt;String&gt;] [-DataStore &lt;String&gt;] [-FileName &lt;String&gt;] [-Description &lt;String&gt;] [-Status &lt;AppStackStatus&gt;] [-CreatedAt &lt;DateTime&gt;] [-MountedAt &lt;DateTime&gt;] [-Size &lt;Int32&gt;] [-TemplateVersion &lt;String&gt;] [-MountCount &lt;Int32&gt;] [-AssignmentsTotal &lt;Int32&gt;] [-LocationCount &lt;Int32&gt;] [-ApplicationCount &lt;Int32&gt;] [-VolumeGuid &lt;Guid&gt;] [-TemplateFileName &lt;String&gt;] [-AgentVersion &lt;String&gt;] [-CaptureVersion &lt;String&gt;] [-Exact] [-Like] [-ge] [-le] [-gt] [-lt] [-Not]</string>
+        <string>Get-AppVolAppStack [[-VolumeID] &lt;Int32[]&gt;] [-Name &lt;String&gt;] [-Path &lt;String&gt;] [-DataStore &lt;String&gt;] [-FileName &lt;String&gt;] [-Description &lt;String&gt;] [-Status &lt;AppStackStatus&gt;] [-CreatedAt &lt;DateTime&gt;] [-MountedAt &lt;DateTime&gt;] [-Size &lt;Int32&gt;] [-TemplateVersion &lt;String&gt;] [-MountCount &lt;Int32&gt;] [-AssignmentsTotal &lt;Int32&gt;] [-LocationCount &lt;Int32&gt;] [-ApplicationCount &lt;Int32&gt;] [-VolumeGuid &lt;Guid&gt;] [-TemplateFileName &lt;String&gt;] [-AgentVersion &lt;String&gt;] [-CaptureVersion &lt;String&gt;] [-Exact] [-Like] [-ge] [-le] [-gt] [-lt] [-Not]</string>
+      </Syntax>
+      <Parameters>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="0" globbing="false">
+          <Name>All</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description>Return All AppStacks</Description>
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>Name</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>Path</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>DataStore</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>FileName</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>Description</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="AppStackStatus" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>Status</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="DateTime" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>CreatedAt</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="DateTime" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>MountedAt</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="Int32" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>Size</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>TemplateVersion</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="Int32" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>MountCount</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="Int32" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>AssignmentsTotal</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="Int32" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>LocationCount</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="Int32" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>ApplicationCount</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="Guid" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>VolumeGuid</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>TemplateFileName</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>AgentVersion</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>CaptureVersion</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>Exact</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>Like</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>ge</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>le</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>gt</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>lt</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="false" pos="named" globbing="false">
+          <Name>Not</Name>
+          <Attributes>
+            <string>System.Management.Automation.ParameterAttribute</string>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="Int32[]" varLen="true" required="false" dynamic="false" pipeRemaining="false" pipe="true" pipeProp="true" isPos="true" pos="0" globbing="false">
+          <Name>VolumeID</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.AllowNullAttribute</string>
+            <string>System.Management.Automation.AliasAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases>
+            <string>id</string>
+            <string>AppStackId</string>
+          </Aliases>
+          <Description>AppStack ID</Description>
+          <DefaultValue />
+        </ParameterDescription>
+      </Parameters>
+      <Examples>
+        <Example>
+          <Name>Example 1</Name>
+          <Cmd>Get-AppVolAppStack [-All] </Cmd>
+          <Description>Return all available AppStacks</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 2</Name>
+          <Cmd>Get-AppVolAppStack -VolumeID 88,19</Cmd>
+          <Description>Return AppStacks with IDs 88 and 19</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 3</Name>
+          <Cmd>88,19|Get-AppVolAppStack </Cmd>
+          <Description>Return AppStacks with IDs 88 and 19 thru the pipe</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 4</Name>
+          <Cmd>Get-AppVolAppStack -Name office </Cmd>
+          <Description>Return all AppStacks where the name contains “office”</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 5</Name>
+          <Cmd>Get-AppVolAppStack -Name office -Not </Cmd>
+          <Description>Return all AppStacks where the name NOT contains “office”</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 6</Name>
+          <Cmd>Get-AppVolAppStack -Name office  -Exact </Cmd>
+          <Description>Return all AppStacks where the name is exactly “office”</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 7</Name>
+          <Cmd>Get-AppVolAppStack -Path "cloudvolumes" </Cmd>
+          <Description>Return AppStacks that has “cloudvolumes” in the datastore path</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 8</Name>
+          <Cmd>Get-AppVolAppStack -DataStore iSCSI -Exact </Cmd>
+          <Description>Return AppStacks located on datastore iSCSI</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 9</Name>
+          <Cmd>Get-AppVolAppStack -FileName office </Cmd>
+          <Description>Return AppStacks where vmdk name contains word office</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 10</Name>
+          <Cmd>Get-AppVolAppStack -CreatedAt "4/28/2015" –ge</Cmd>
+          <Description>Return AppStacks created after or on 4/28/2015</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 11</Name>
+          <Cmd>Get-AppVolAppStack -CreatedAt "4/28/2015" -gt  </Cmd>
+          <Description>Return AppStacks created after but not on 4/28/2015</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 12</Name>
+          <Cmd>Get-AppVolAppStack -MountedAt $((get-date).AddDays(-30)) -ge -Not  </Cmd>
+          <Description>Return AppStacks not mounted in past 30 days</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 13</Name>
+          <Cmd>Get-AppVolAppStack -TemplateVersion "2.5.1" </Cmd>
+          <Description>Return AppStacks with template version 2.5.1</Description>
+          <Output />
+        </Example>
+        <Example>
+          <Name>Example 14</Name>
+          <Cmd />
+          <Description>Return AppStacks that have 2 or more assignments</Description>
+          <Output />
+        </Example>
+      </Examples>
+      <RelatedLinks />
+      <SupportInformation ad="false" rsat="false" ps2="false" ps3="false" ps4="false" ps5="false" wxp="false" wv="false" w7="false" w8="false" w81="false" w2k3s="false" w2k3e="false" w2k3d="false" w2k8s="false" w2k8e="false" w2k8d="false" w2k8r2s="false" w2k8r2e="false" w2k8r2d="false" w2k12s="false" w2k12d="false" w2k12r2s="false" w2k12r2d="false" />
+      <Publish>false</Publish>
+    </CmdletObject>
+    <CmdletObject verb="Get" noun="AppVolAssignment">
+      <Name>Get-AppVolAssignment</Name>
+      <GeneralHelp>
+        <Synopsis />
+        <Description />
+        <Notes />
+        <InputType />
+        <InputUrl />
+        <InputTypeDescription />
+        <ReturnType />
+        <ReturnUrl />
+        <ReturnTypeDescription />
+      </GeneralHelp>
+      <ParamSets>
+        <CommandParameterSetInfo2 Name="AllAssignments" Params="All EntityDn EntitySamAccountName EntityDomain EntityType EventTime MountPrefix VolumeName Exact Like ge le gt lt Not Verbose Debug ErrorAction WarningAction ErrorVariable WarningVariable OutVariable OutBuffer PipelineVariable" />
+        <CommandParameterSetInfo2 Name="SelectedAssignment" Params="EntityDn EntitySamAccountName EntityDomain EntityType EventTime MountPrefix VolumeId VolumeName Exact Like ge le gt lt Not Verbose Debug ErrorAction WarningAction ErrorVariable WarningVariable OutVariable OutBuffer PipelineVariable" />
+      </ParamSets>
+      <Syntax>
+        <string>Get-AppVolAssignment [[-All] &lt;SwitchParameter&gt;] [[-EntityDn] &lt;String&gt;] [[-EntitySamAccountName] &lt;String&gt;] [[-EntityDomain] &lt;String&gt;] [[-EntityType] &lt;EntityType&gt;] [[-EventTime] &lt;DateTime&gt;] [[-MountPrefix] &lt;String&gt;] [[-VolumeName] &lt;String&gt;] [[-Exact] &lt;SwitchParameter&gt;] [[-Like] &lt;SwitchParameter&gt;] [[-ge] &lt;SwitchParameter&gt;] [[-le] &lt;SwitchParameter&gt;] [[-gt] &lt;SwitchParameter&gt;] [[-lt] &lt;SwitchParameter&gt;] [[-Not] &lt;SwitchParameter&gt;]</string>
+        <string>Get-AppVolAssignment [[-EntityDn] &lt;String&gt;] [[-EntitySamAccountName] &lt;String&gt;] [[-EntityDomain] &lt;String&gt;] [[-EntityType] &lt;EntityType&gt;] [[-EventTime] &lt;DateTime&gt;] [[-MountPrefix] &lt;String&gt;] [[-VolumeId] &lt;Int32&gt;] [[-VolumeName] &lt;String&gt;] [[-Exact] &lt;SwitchParameter&gt;] [[-Like] &lt;SwitchParameter&gt;] [[-ge] &lt;SwitchParameter&gt;] [[-le] &lt;SwitchParameter&gt;] [[-gt] &lt;SwitchParameter&gt;] [[-lt] &lt;SwitchParameter&gt;] [[-Not] &lt;SwitchParameter&gt;]</string>
+      </Syntax>
+      <Parameters>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="1" globbing="false">
+          <Name>All</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="2" globbing="false">
+          <Name>EntityDn</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="2" globbing="false">
+          <Name>EntitySamAccountName</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="2" globbing="false">
+          <Name>EntityDomain</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="EntityType" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="2" globbing="false">
+          <Name>EntityType</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="DateTime" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="2" globbing="false">
+          <Name>EventTime</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="2" globbing="false">
+          <Name>MountPrefix</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="String" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="2" globbing="false">
+          <Name>VolumeName</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="3" globbing="false">
+          <Name>Exact</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="3" globbing="false">
+          <Name>Like</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="3" globbing="false">
+          <Name>ge</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="3" globbing="false">
+          <Name>le</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="3" globbing="false">
+          <Name>gt</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="3" globbing="false">
+          <Name>lt</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="SwitchParameter" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="false" pipeProp="false" isPos="true" pos="3" globbing="false">
+          <Name>Not</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases />
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+        <ParameterDescription type="Int32" varLen="false" required="false" dynamic="false" pipeRemaining="false" pipe="true" pipeProp="true" isPos="true" pos="1" globbing="false">
+          <Name>VolumeId</Name>
+          <Attributes>
+            <string>System.Management.Automation.ArgumentTypeConverterAttribute</string>
+            <string>System.Management.Automation.ValidateNotNullAttribute</string>
+            <string>System.Management.Automation.AliasAttribute</string>
+            <string>System.Management.Automation.ParameterAttribute</string>
+          </Attributes>
+          <Aliases>
+            <string>id</string>
+          </Aliases>
+          <Description />
+          <DefaultValue />
+        </ParameterDescription>
+      </Parameters>
+      <Examples />
       <RelatedLinks />
       <SupportInformation ad="false" rsat="false" ps2="false" ps3="false" ps4="false" ps5="false" wxp="false" wv="false" w7="false" w8="false" w81="false" w2k3s="false" w2k3e="false" w2k3d="false" w2k8s="false" w2k8e="false" w2k8d="false" w2k8r2s="false" w2k8r2e="false" w2k8r2d="false" w2k12s="false" w2k12d="false" w2k12r2s="false" w2k12r2d="false" />
       <Publish>false</Publish>
