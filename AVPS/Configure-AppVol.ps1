@@ -38,7 +38,7 @@ namespace Vmware.Appvolumes
  
 {
 
- public int Id;
+ public int VolumeId;
  public string Name;
  public string Path;
  public string DataStore;
@@ -114,9 +114,9 @@ namespace Vmware.Appvolumes
 {
 
  
- public string EntityDn;
- public string EntitySamAccountName;
- public string EntityDomain;
+ public string DistignushedName;
+ public string SamAccountName;
+ public string Domain;
  public EntityType EntityType;
  public DateTime EventTime;
  public String MountPrefix;
@@ -131,7 +131,7 @@ namespace Vmware.Appvolumes
  
 {
 
- public int AppStackId;
+ public int VolumeId;
  public string Name;
  public string MachineManagerType;
  public string MachineManagerHost;

@@ -6,6 +6,28 @@ param ($params)
 if ($($params -notmatch $RegexParams).count -gt 0){return $true}else{return $false}
 }
 
+Function Internal-ReturnGet 
+{
+	 param (
+        $ParamKeys, 
+        $Entities
+		
+	)
+  if (Internal-CheckFilter $ParamKeys) 
+   {
+
+   $EntitiesFiltered=@()
+   foreach ($Entitity in $Entities)
+    {
+      $EntitiesFiltered += Internal-FilterResults ($Entitity)
+      
+    }
+    return $EntitiesFiltered
+   }
+    
+    
+    else { return $Entities }
+  }
 
 
 function Internal-Rest
@@ -198,7 +220,7 @@ function Internal-PopulateAppStack
 
   )
   $appStack = New-Object -TypeName Vmware.Appvolumes.AppVolumesAppStack
-  $appStack.id = $instance.id
+  $appStack.VolumeId = $instance.id
   $appStack.DataStore = $instance.datastore_name
   $appStack.Name = $instance.Name
   $appStack.path = $instance.path
@@ -270,9 +292,9 @@ function Internal-PopulateAssignment
 
   )
   $Assignment = New-Object -TypeName Vmware.Appvolumes.AppVolumesAssignment
-  $Assignment.EntityDn = $instance.entity_dn
-  $Assignment.EntitySamAccountName = $instance.entity_upn.Split('\')[1]
-  $Assignment.EntityDomain = $instance.entity_upn.Split('\')[0]
+  $Assignment.DistignushedName = $instance.entity_dn
+  $Assignment.SamAccountName = $instance.entity_upn.Split('\')[1]
+  $Assignment.Domain = $instance.entity_upn.Split('\')[0]
   $Assignment.EntityType = $instance.entityt
   $Assignment.EventTime = $instance.event_time
   $Assignment.MountPrefix = $instance.mount_prefix
@@ -559,183 +581,101 @@ function Get-AppVolAppStack
   end
   {
   
-   if (Internal-CheckFilter $PSCmdlet.MyInvocation.BoundParameters.Keys) 
-   {
-   foreach ($Entitity in $Entities)
-    {
-      $EntitiesFiltered += Internal-FilterResults ($Entitity)
-      
-    }
-    return $EntitiesFiltered
-   }
-    
-    
-    else { return $Entities }
-  }
-
+ return Internal-ReturnGet $PSCmdlet.MyInvocation.BoundParameters.Keys $Entities
+ }
   
 
 }
 
+#.ExternalHelp AppVol.psm1-help.xml
 function Get-AppVolAssignment
 {
 
   [CmdletBinding(DefaultParameterSetName = "AllAssignments")]
   param(
-    [Parameter(ParameterSetName = "AllAssignments",Position = 1,ValueFromPipeline = $false,Mandatory = $false)]
+    [Parameter(ParameterSetName = "AllAssignments",Position = 0,ValueFromPipeline = $false,Mandatory = $false)]
     [switch]$All,
+    [Parameter(ParameterSetName = "SelectedVolume",Mandatory = $false,Position = 0,ValueFromPipeline = $TRUE,ValueFromPipelineByPropertyName = $true,ValueFromRemainingArguments = $false,HelpMessage = "Enter one or more AppStack IDs separated by commas.")]
+    [Alias('id')]
+    [AllowNull()]
+    [int]$VolumeId,
 
-    [Parameter(Mandatory = $false,Position = 2)]
+    
     [ValidateNotNull()]
-    [string]$EntityDn,
+    [string]$DistignushedName,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
-    [string]$EntitySamAccountName,
+    [string]$SamAccountName,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
-    [string]$EntityDomain,
+    [string]$Domain,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [Vmware.Appvolumes.EntityType]$EntityType,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [datetime]$EventTime,
 
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [string]$MountPrefix,
 
-    [Parameter(ParameterSetName = "SelectedAssignment",Mandatory = $false,Position = 1,ValueFromPipeline = $TRUE,ValueFromPipelineByPropertyName = $true,ValueFromRemainingArguments = $false,HelpMessage = "Enter one or more AppStack IDs separated by commas.")]
-    [Alias('id')]
-    [ValidateNotNull()]
-    [int]$VolumeId,
-
-    [Parameter(Mandatory = $false,Position = 2)]
+    
     [ValidateNotNull()]
     [string]$VolumeName,
-    [Parameter(Mandatory = $false,Position = 3)]
+   
     [switch]$Exact,
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$Like,
 
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$ge,
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$le,
-
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$gt,
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$lt,
 
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$Not
 
   )
   begin
   {
     Test-AppVolSession
-
-    [Vmware.Appvolumes.AppVolumesAssignment[]]$Assignments = $null
-    [Vmware.Appvolumes.AppVolumesAssignment[]]$AssignmentsFiltered = $null
-    $Filtered = $false
-  }
-  process
-  {
-
+    [Vmware.Appvolumes.AppVolumesAssignment []]$Entities = $null
+    
     $rooturi = "$($Global:GlobalSession.Uri)cv_api/assignments"
     switch ($PsCmdlet.ParameterSetName)
     {
       "AllAssignments"
       {
         $tmp = (Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get).assignments
-        foreach ($Assignment in $tmp)
+        foreach ($Entity in $tmp)
         {
-          $Assignments += Internal-PopulateAssignment $Assignment
+          $Entities += Internal-PopulateAssignment $Entity
         }
       }
-      "SelectedAssignment"
-      {
+      }
+  }
+  process
+  {
+   
         $tmp = (Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get).assignments
-        foreach ($Assignment in $tmp)
+        foreach ($Entity in $tmp)
         {
-          $tmpAssignment = Internal-PopulateAssignment $Assignment
+          $tmpAssignment = Internal-PopulateAssignment $Entity
           if ($tmpAssignment.VolumeId -eq $VolumeId)
           {
-            $Assignments += $tmpAssignment
+            $Entities += $tmpAssignment
           }
         }
-      }
-    }
-    foreach ($Assignment in $Assignments)
-    {
-      $AssignmentsFiltered += Internal-FilterResults ($Assignment)
-    }
   }
   end
   {
-    if ($AssignmentsFiltered)
-    {
-      return $AssignmentsFiltered
-    }
-    else
-    {
-      return $Assignments
-    }
+   return Internal-ReturnGet $PSCmdlet.MyInvocation.BoundParameters.Keys $Entities
   }
 
-  <# 
- .Synopsis
- Returns AppVolumes Manager Assignment(s).
-
- .Description
- Returns AppVolumes Manager Assignment(s).
-
- .Parameter Session
- App Volumes Manager Session.
- 
- .Parameter All
- Return All Assignments
- .Parameter AssignmentIds
- Assignment ID
- .Example
- Open-AppVolSession http://appvol01.corp.itbubble.ru fdwl P@ssw0rd
-# Return all assignments
-Get-AppVolAssignment [-all] 
-
-# Return all assignments for appstacks that has “office” in the name
-Get-AppVolAppStack -Name office |Get-AppVolAssignment  
-
-# Return assignments for users in specific OU
-Get-AppVolAssignment -EntityDn "cn=users,dc=domain,dc=com" 
-
-# Return assignments for user “denis”
-Get-AppVolAssignment -EntitySamAccountName denis -Exact 
-
-# Return assignments for users in domain CORP
-Get-AppVolAssignment -EntityDomain CORP 
-
-# Return computer assignments
-Get-AppVolAssignment -EntityType:Computer 
-
-# Return OU assignments
-Get-AppVolAssignment -EntityType:OrgUnit 
-
-# Return # Return appstacks assigned to a user
-Get-AppVolAssignment -EntitySamAccountName denis|Get-AppVolAppStack|ft 
-
-
-
-#>
+  
 
 }
 
+#.ExternalHelp AppVol.psm1-help.xml
 function Get-AppVolAppStackFile
-
 {
 
   [CmdletBinding(DefaultParameterSetName = "AllAppStackFiles")]
@@ -806,30 +746,7 @@ function Get-AppVolAppStackFile
     else { return $AppStackFiles }
   }
 
-  <#
- .Synopsis
- Returns AppVolumes Manager AppStackFile(s).
- .Description
- Returns AppVolumes Manager AppStackFile(s).
- .Parameter Session
- App Volumes Manager Session.
- .Parameter All
- Return All AppStackFiles
- .Parameter AppStackFileId
- AppStackFile ID
- .Example
- $session=Open-AppVolSession http://appvol01.corp.itbubble.ru fdwl P@ssw0rd
- # Return file names for appstack with id 88
- Get-AppVolAppStackFile -VolumeID 88 
-
- # Returns a table with all appstacks that have files on datastore1
- Get-AppVolAppStackFile -DataStore datastore1|Get-AppVolAppStack|Format-Table
  
- # Returns all unreachable files
- Get-AppVolAppStackFile -Reachable -Not
-
-
-#>
 
 }
 
