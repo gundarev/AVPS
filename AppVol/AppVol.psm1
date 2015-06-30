@@ -1,8 +1,59 @@
 ﻿#region Internal Functions
+
+#.ExternalHelp AppVol.psm1-help.xml
+function Internal-GetOnlineEntity
+{
+
+  
+  param(
+  
+  [Vmware.Appvolumes.AppVolumesEntity[]]$UpEntities
+
+  )
+  
+    Test-AppVolSession
+    $rooturi = "$($Global:GlobalSession.Uri)cv_api/online_entities"
+    [regex]$parser = '(?:<a\shref=\"/[a-z]*#/)(?<EntityType>[A-z]*)(?:/)(?<EntityId>[0-9]*)(?:\"\stitle=\")(?<DisplayName>.*)(?:\">)(?<Domain>.*)(?:[\\]|[\s])(?<SamAccountName>.*)(?:</a>)'
+            
+    try
+        {
+            $UnparsedEntities = $(Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get).online.records
+        }
+    catch{}
+
+    foreach ($UnparsedEntity in $UnparsedEntities)
+        {
+            $UnparsedEntityId = [regex]::Matches($UnparsedEntity.entity_name,$parser)[0].Groups['EntityId'].Value
+
+            foreach ($UpEntity in $UpEntities){
+            if (($UnparsedEntity.entity_type -eq $UpEntity.EntityType ) -and ($UpEntity.EntityId -eq [int]$UnparsedEntityId))
+            {
+                switch ($UnparsedEntity.agent_status)
+                {
+                    "red" {$UpEntity.AgentStatus = 'Red'}
+                    "green" {$UpEntity.AgentStatus = 'Green'}
+                    "good-c" {$UpEntity.AgentStatus = 'GoodC'}
+                    "good-W" {$UpEntity.AgentStatus = 'GoodW'}
+                }
+                if ($UnparsedEntity.connection_time) {$UpEntity.ConnectionTime = $UnparsedEntity.connection_time }
+                switch ($UpEntity.EntityType)
+                {
+                'Computer' {$UpEntity.IPAddress = $(($UnparsedEntity.details) -replace "IP: ", "")}
+                'User' {$UpEntity.HostId = $([regex]::Matches($UnparsedEntity.details,$parser)[0].Groups['EntityId'].Value)}
+
+                }
+          }
+        }
+      }
+   
+
+}
+
+
 function Internal-CheckFilter
 {
 param ($params)
-[regex] $RegexParams = '(?i)^(All|VolumeId|ErrorAction|WarningAction|Verbose|Debug|ErrorVariable|WarningVariable|OutVariable|OutBuffer|PipelineVariable)$'
+[regex] $RegexParams = '(?i)^(All|EntityId|VolumeId|ErrorAction|WarningAction|Verbose|Debug|ErrorVariable|WarningVariable|OutVariable|OutBuffer|PipelineVariable)$'
 if ($($params -notmatch $RegexParams).count -gt 0){return $true}else{return $false}
 }
 
@@ -83,11 +134,11 @@ function Internal-FilterResults
   foreach ($CurrentParameter in $($PSCmdlet.MyInvocation.BoundParameters.Keys))
 
   {
-    if (-not (@('VolumeId','All','Not','VolumeID') -contains $CurrentParameter ) )
+    if (-not (@('VolumeId','All','Not','VolumeID','EntityId') -contains $CurrentParameter ) )
     {
       switch ($PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter].GetType().Name)
       {
-        "String"
+         {($_ -match "String") -or ($_ -eq "IPAddress")}
         {
           if ($Exact)
           {
@@ -181,7 +232,7 @@ function Internal-FilterResults
             }
           }
         }
-        {($_ -eq "Guid") -or ($_ -eq "AppStackStatus")}
+        {($_ -eq "Guid") -or ($_ -eq "AppStackStatus") -or  ($_ -eq "ComputerType")-or  ($_ -eq "AgentStatus")}
         {
           if ($Entity.$CurrentParameter -eq $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
           {
@@ -280,6 +331,72 @@ function Internal-PopulateAppStack
   $appStack.oses = $oses
   $appStack.ProvisonDuration = $instance.provision_duration
   return $appStack
+
+}
+
+function Internal-PopulateEntity
+
+{
+
+  param(
+    $instance
+
+  )
+  $LocalEntity = New-Object -TypeName Vmware.Appvolumes.AppVolumesEntity
+
+[regex]$parser = '(?:<a\shref=\"/[a-z]*#/)(?<EntityType>[A-z]*)(?:/)(?<EntityId>[0-9]*)(?:\"\stitle=\")(?<DisplayName>.*)(?:\">)(?<Domain>.*)(?:[\\]|[\s])(?<SamAccountName>.*)(?:</a>)'
+try
+{
+if ($instance.upn_link) {$upn_link= $instance.upn_link} else {$upn_link= $instance.upn}
+$EntityType = [regex]::Matches($upn_link,$parser)[0].Groups['EntityType'].Value
+$EntityId = [regex]::Matches($upn_link,$parser)[0].Groups['EntityId'].Value
+$DisplayName = [regex]::Matches($upn_link,$parser)[0].Groups['DisplayName'].Value
+$Domain = [regex]::Matches($upn_link,$parser)[0].Groups['Domain'].Value
+$SamAccountName = [regex]::Matches($upn_link,$parser)[0].Groups['SamAccountName'].Value
+
+}
+catch
+{
+}
+
+
+if ($instance.enabled) {$LocalEntity.Enabled = $instance.enabled}
+if ($instance.last_login) 
+{
+    $LocalEntity.LastLogin = $($instance.last_login -replace " UTC","Z")
+    }
+if ($instance.logins) {$LocalEntity.NumLogins = $instance.logins}
+
+if ($DisplayName) {$LocalEntity.DisplayName = $DisplayName }
+if ($SamAccountName) {$LocalEntity.SamAccountName = $SamAccountName }
+if ($Domain) {$LocalEntity.Domain = $Domain }
+if ($EntityId) {$LocalEntity.EntityId = $EntityId }
+
+
+
+
+if ($instance.writables) {$LocalEntity.WritablesAssigned = $instance.writables}
+if ($instance.appstacks) {$LocalEntity.AppStacksAssigned = $instance.appstacks}
+if ($instance.attachments) {$LocalEntity.AppStacksAttached = $instance.attachments}
+
+if ($instance.agent_version) {$LocalEntity.AgentVersion = $instance.agent_version}
+if ($instance.os) {$LocalEntity.ComputerType = $instance.os}
+switch ($EntityType)
+{
+"Users" 
+    {
+        $LocalEntity.EntityType = 'User'
+        
+    }
+"Computers" 
+    {
+        $LocalEntity.EntityType = 'Computer'
+    }
+"Groups" {$LocalEntity.EntityType = 'Group'}
+"Org_units" {$LocalEntity.EntityType = 'OrgUnit'}
+}
+  
+  return $LocalEntity
 
 }
 
@@ -733,6 +850,414 @@ function Get-AppVolAppStackFile
     return Internal-ReturnGet $PSCmdlet.MyInvocation.BoundParameters.Keys $Entities
   }
 }
+
+#.ExternalHelp AppVol.psm1-help.xml
+function Get-AppVolUser
+{
+
+  [CmdletBinding(DefaultParameterSetName = "AllEntities")]
+  param(
+    [Parameter(ParameterSetName = "AllEntities",Position = 0,ValueFromPipeline = $false,Mandatory = $false)]
+    [switch]$All,
+    [Parameter(ParameterSetName = "SelectedEntity",Mandatory = $false,Position = 0,ValueFromPipeline = $TRUE,ValueFromPipelineByPropertyName = $true,ValueFromRemainingArguments = $false,HelpMessage = "Enter one or more AppStack IDs separated by commas.")]
+    [Alias('id')]
+    [AllowNull()]
+    [int]$EntityId,
+
+    
+
+[ValidateNotNull()]
+[switch]$Enabled,
+
+[ValidateNotNull()]
+[DateTime]$LastLogin,
+
+
+[ValidateNotNull()] 
+[int]$NumLogins,
+
+[ValidateNotNull()] 
+[string]$DisplayName,
+
+[ValidateNotNull()] 
+[string]$SamAccountName,
+
+[ValidateNotNull()] 
+[string]$Domain,
+
+[ValidateNotNull()] 
+[int]$WritablesAssigned,
+
+[ValidateNotNull()] 
+[int]$AppStacksAssigned,
+
+[ValidateNotNull()] 
+[int]$AppStacksAttached,
+
+[ValidateNotNull()] 
+[int]$HostId,
+
+
+[ValidateNotNull()]
+[DateTime]$ConnectionTime,
+
+[ValidateNotNull()] 
+[VMware.AppVolumes.AgentStatus]$AgentStatus,
+
+
+   
+    [switch]$Exact,
+    [switch]$Like,
+
+    [switch]$ge,
+    [switch]$le,
+    [switch]$gt,
+    [switch]$lt,
+
+    [switch]$Not
+
+  )
+  begin
+  {
+    Test-AppVolSession
+    [Vmware.Appvolumes.AppVolumesEntity []]$Entities = $null
+    
+    $rooturi = "$($Global:GlobalSession.Uri)cv_api/users"
+    switch ($PsCmdlet.ParameterSetName)
+    {
+      "AllEntities"
+      {
+        $tmp = Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get
+        foreach ($Entity in $tmp)
+        {
+          $Entities += Internal-PopulateEntity $Entity
+        }
+      }
+      }
+  }
+  process
+  {
+   switch ($PsCmdlet.ParameterSetName)
+    {
+      "SelectedEntity"
+      {
+        $tmp = Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get
+        foreach ($Entity in $tmp)
+        {
+          $tmpEntity = Internal-PopulateEntity $Entity
+          if ($tmpEntity.EntityId -eq $EntityId)
+          {
+            $Entities += $tmpEntity
+          }
+        }
+      }
+    }
+  }
+  end
+  {
+  Internal-GetOnlineEntity ($Entities)
+   return Internal-ReturnGet $PSCmdlet.MyInvocation.BoundParameters.Keys $Entities
+  }
+
+  
+
+}
+
+#.ExternalHelp AppVol.psm1-help.xml
+function Get-AppVolComputer
+{
+
+  [CmdletBinding(DefaultParameterSetName = "AllEntities")]
+  param(
+    [Parameter(ParameterSetName = "AllEntities",Position = 0,ValueFromPipeline = $false,Mandatory = $false)]
+    [switch]$All,
+    [Parameter(ParameterSetName = "SelectedEntity",Mandatory = $false,Position = 0,ValueFromPipeline = $TRUE,ValueFromPipelineByPropertyName = $true,ValueFromRemainingArguments = $false,HelpMessage = "Enter one or more AppStack IDs separated by commas.")]
+    [Alias('id')]
+    [AllowNull()]
+    [int]$EntityId,
+
+    
+
+[ValidateNotNull()]
+[switch]$Enabled,
+
+[ValidateNotNull()]
+[DateTime]$LastLogin,
+
+[ValidateNotNull()]
+[DateTime]$ConnectionTime,
+
+[ValidateNotNull()] 
+[int]$NumLogins,
+
+[ValidateNotNull()] 
+[string]$DisplayName,
+
+[ValidateNotNull()] 
+[string]$SamAccountName,
+
+[ValidateNotNull()] 
+[string]$Domain,
+
+[ValidateNotNull()] 
+[int]$WritablesAssigned,
+
+[ValidateNotNull()] 
+[int]$AppStacksAssigned,
+
+[ValidateNotNull()] 
+[int]$AppStacksAttached,
+
+[ValidateNotNull()] 
+[string]$AgentVersion,
+
+[ValidateNotNull()] 
+[VMware.AppVolumes.ComputerType]$ComputerType,
+
+[ValidateNotNull()] 
+[ipaddress]$IpAddress,
+
+[ValidateNotNull()] 
+[VMware.AppVolumes.AgentStatus]$AgentStatus,
+
+
+    [switch]$Exact,
+    [switch]$Like,
+
+    [switch]$ge,
+    [switch]$le,
+    [switch]$gt,
+    [switch]$lt,
+
+    [switch]$Not
+
+  )
+  begin
+  {
+    Test-AppVolSession
+    [Vmware.Appvolumes.AppVolumesEntity []]$Entities = $null
+    
+    $rooturi = "$($Global:GlobalSession.Uri)cv_api/computers"
+    switch ($PsCmdlet.ParameterSetName)
+    {
+      "AllEntities"
+      {
+        $tmp = Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get
+        foreach ($Entity in $tmp)
+        {
+          $Entities += Internal-PopulateEntity $Entity
+        }
+      }
+      }
+  }
+  process
+  {
+   switch ($PsCmdlet.ParameterSetName)
+    {
+      "SelectedEntity"
+      {
+        $tmp = Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get
+        foreach ($Entity in $tmp)
+        {
+          $tmpEntity = Internal-PopulateEntity $Entity
+          if ($tmpEntity.EntityId -eq $EntityId)
+          {
+            $Entities += $tmpEntity
+          }
+        }
+      }
+    }
+  }
+  end
+  {
+  Internal-GetOnlineEntity ($Entities)
+ 
+   return Internal-ReturnGet $PSCmdlet.MyInvocation.BoundParameters.Keys $Entities
+  }
+
+  
+
+}
+
+
+#.ExternalHelp AppVol.psm1-help.xml
+function Get-AppVolGroup
+{
+
+  [CmdletBinding(DefaultParameterSetName = "AllEntities")]
+  param(
+    [Parameter(ParameterSetName = "AllEntities",Position = 0,ValueFromPipeline = $false,Mandatory = $false)]
+    [switch]$All,
+    [Parameter(ParameterSetName = "SelectedEntity",Mandatory = $false,Position = 0,ValueFromPipeline = $TRUE,ValueFromPipelineByPropertyName = $true,ValueFromRemainingArguments = $false,HelpMessage = "Enter one or more AppStack IDs separated by commas.")]
+    [Alias('id')]
+    [AllowNull()]
+    [int]$EntityId,
+
+    
+
+[ValidateNotNull()]
+[DateTime]$LastLogin,
+
+
+[ValidateNotNull()] 
+[string]$DisplayName,
+
+[ValidateNotNull()] 
+[string]$SamAccountName,
+
+[ValidateNotNull()] 
+[string]$Domain,
+
+[ValidateNotNull()] 
+[int]$AppStacksAssigned,
+
+
+   
+    [switch]$Exact,
+    [switch]$Like,
+
+    [switch]$ge,
+    [switch]$le,
+    [switch]$gt,
+    [switch]$lt,
+
+    [switch]$Not
+
+  )
+  begin
+  {
+    Test-AppVolSession
+    [Vmware.Appvolumes.AppVolumesEntity []]$Entities = $null
+    
+    $rooturi = "$($Global:GlobalSession.Uri)cv_api/groups"
+    switch ($PsCmdlet.ParameterSetName)
+    {
+      "AllEntities"
+      {
+        $tmp = $(Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get).groups
+        foreach ($Entity in $tmp)
+        {
+          $Entities += Internal-PopulateEntity $Entity
+        }
+      }
+      }
+  }
+  process
+  {
+   switch ($PsCmdlet.ParameterSetName)
+    {
+      "SelectedEntity"
+      {
+        $tmp = $(Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get).groups
+        foreach ($Entity in $tmp)
+        {
+          $tmpEntity = Internal-PopulateEntity $Entity
+          if ($tmpEntity.EntityId -eq $EntityId)
+          {
+            $Entities += $tmpEntity
+          }
+        }
+      }
+    }
+  }
+  end
+  {
+   return Internal-ReturnGet $PSCmdlet.MyInvocation.BoundParameters.Keys $Entities
+  }
+
+  
+
+}
+
+#.ExternalHelp AppVol.psm1-help.xml
+function Get-AppVolOrgUnit
+{
+
+  [CmdletBinding(DefaultParameterSetName = "AllEntities")]
+  param(
+    [Parameter(ParameterSetName = "AllEntities",Position = 0,ValueFromPipeline = $false,Mandatory = $false)]
+    [switch]$All,
+    [Parameter(ParameterSetName = "SelectedEntity",Mandatory = $false,Position = 0,ValueFromPipeline = $TRUE,ValueFromPipelineByPropertyName = $true,ValueFromRemainingArguments = $false,HelpMessage = "Enter one or more AppStack IDs separated by commas.")]
+    [Alias('id')]
+    [AllowNull()]
+    [int]$EntityId,
+
+    
+
+[ValidateNotNull()]
+[DateTime]$LastLogin,
+
+
+[ValidateNotNull()] 
+[string]$DisplayName,
+
+[ValidateNotNull()] 
+[string]$SamAccountName,
+
+[ValidateNotNull()] 
+[string]$Domain,
+
+[ValidateNotNull()] 
+[int]$AppStacksAssigned,
+
+
+   
+    [switch]$Exact,
+    [switch]$Like,
+
+    [switch]$ge,
+    [switch]$le,
+    [switch]$gt,
+    [switch]$lt,
+
+    [switch]$Not
+
+  )
+  begin
+  {
+    Test-AppVolSession
+    [Vmware.Appvolumes.AppVolumesEntity []]$Entities = $null
+    
+    $rooturi = "$($Global:GlobalSession.Uri)cv_api/org_units"
+    switch ($PsCmdlet.ParameterSetName)
+    {
+      "AllEntities"
+      {
+        $tmp = $(Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get).org_units
+        foreach ($Entity in $tmp)
+        {
+          $Entities += Internal-PopulateEntity $Entity
+        }
+      }
+      }
+  }
+  process
+  {
+   switch ($PsCmdlet.ParameterSetName)
+    {
+      "SelectedEntity"
+      {
+        $tmp = $(Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get).org_units
+        foreach ($Entity in $tmp)
+        {
+          $tmpEntity = Internal-PopulateEntity $Entity
+          if ($tmpEntity.EntityId -eq $EntityId)
+          {
+            $Entities += $tmpEntity
+          }
+        }
+      }
+    }
+  }
+  end
+  {
+   return Internal-ReturnGet $PSCmdlet.MyInvocation.BoundParameters.Keys $Entities
+  }
+
+  
+
+}
+
 
 <# 
  .Synopsis
