@@ -1,0 +1,29 @@
+[OPTIONS]
+Auto Index=Yes
+Compatibility=1.1 or later
+Compiled file=AppVol.chm
+Contents file=Help\original.hhc
+Default topic=Help\Open-AppVolSession.htm
+Display compile progress=No
+Enhanced decompilation=Yes
+Full-text search=Yes
+Index file=Help\Index.hhk
+Language=0x409 English (United States)
+Title=App Volumes PowerShell
+
+
+[FILES]
+Help\Close-AppVolSession.htm
+Help\Get-AppVolAppStack.htm
+Help\Get-AppVolAppStackFile.htm
+Help\Get-AppVolAssignment.htm
+Help\Get-AppVolComputer.htm
+Help\Get-AppVolGroup.htm
+Help\Get-AppVolOrgUnit.htm
+Help\Get-AppVolUser.htm
+Help\Get-AppVolVersion.htm
+Help\Open-AppVolSession.htm
+Help\Test-AppVolSession.htm
+
+[INFOTYPES]
+

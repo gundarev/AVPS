@@ -1,0 +1,601 @@
+<h1 style="text-align: center;"><strong>Get-AppVolComputer</strong></h1>
+<h2><strong>Synopsis</strong></h2>
+<p style="margin-left: 40px;">Get all registered computers</p>
+<h2><strong>Syntax</strong></h2>
+<pre style="margin-left: 40px;">Get-AppVolComputer [[-All] &lt;SwitchParameter&gt;] [-Enabled] [-LastLogin &lt;DateTime&gt;] [-ConnectionTime &lt;DateTime&gt;] [-NumLogins &lt;Int32&gt;] [-DisplayName &lt;String&gt;] [-SamAccountName &lt;String&gt;] [-Domain &lt;String&gt;] [-WritablesAssigned &lt;Int32&gt;] [-AppStacksAssigned &lt;Int32&gt;] [-AppStacksAttached &lt;Int32&gt;] [-AgentVersion &lt;String&gt;] [-ComputerType &lt;ComputerType&gt;] [-IpAddress &lt;IPAddress&gt;] [-AgentStatus &lt;AgentStatus&gt;] [-Exact] [-Like] [-ge] [-le] [-gt] [-lt] [-Not] [&lt;CommonParameters&gt;]
+
+Get-AppVolComputer [[-EntityId] &lt;Int32&gt;] [-Enabled] [-LastLogin &lt;DateTime&gt;] [-ConnectionTime &lt;DateTime&gt;] [-NumLogins &lt;Int32&gt;] [-DisplayName &lt;String&gt;] [-SamAccountName &lt;String&gt;] [-Domain &lt;String&gt;] [-WritablesAssigned &lt;Int32&gt;] [-AppStacksAssigned &lt;Int32&gt;] [-AppStacksAttached &lt;Int32&gt;] [-AgentVersion &lt;String&gt;] [-ComputerType &lt;ComputerType&gt;] [-IpAddress &lt;IPAddress&gt;] [-AgentStatus &lt;AgentStatus&gt;] [-Exact] [-Like] [-ge] [-le] [-gt] [-lt] [-Not] [&lt;CommonParameters&gt;]
+
+</pre>
+<h2><strong>Description</strong></h2>
+<h2><strong>Parameters</strong></h2>
+<h3><strong>-All</strong> <em style="font-weight: 100;">&lt;SwitchParameter&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>0</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-Enabled</strong> <em style="font-weight: 100;">&lt;SwitchParameter&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-LastLogin</strong> <em style="font-weight: 100;">&lt;DateTime&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-ConnectionTime</strong> <em style="font-weight: 100;">&lt;DateTime&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-NumLogins</strong> <em style="font-weight: 100;">&lt;Int32&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-DisplayName</strong> <em style="font-weight: 100;">&lt;String&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-SamAccountName</strong> <em style="font-weight: 100;">&lt;String&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-Domain</strong> <em style="font-weight: 100;">&lt;String&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-WritablesAssigned</strong> <em style="font-weight: 100;">&lt;Int32&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-AppStacksAssigned</strong> <em style="font-weight: 100;">&lt;Int32&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-AppStacksAttached</strong> <em style="font-weight: 100;">&lt;Int32&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-AgentVersion</strong> <em style="font-weight: 100;">&lt;String&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-ComputerType</strong> <em style="font-weight: 100;">&lt;ComputerType&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-IpAddress</strong> <em style="font-weight: 100;">&lt;IPAddress&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-AgentStatus</strong> <em style="font-weight: 100;">&lt;AgentStatus&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-Exact</strong> <em style="font-weight: 100;">&lt;SwitchParameter&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-Like</strong> <em style="font-weight: 100;">&lt;SwitchParameter&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-ge</strong> <em style="font-weight: 100;">&lt;SwitchParameter&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-le</strong> <em style="font-weight: 100;">&lt;SwitchParameter&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-gt</strong> <em style="font-weight: 100;">&lt;SwitchParameter&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-lt</strong> <em style="font-weight: 100;">&lt;SwitchParameter&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-Not</strong> <em style="font-weight: 100;">&lt;SwitchParameter&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>named</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>false</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3><strong>-EntityId</strong> <em style="font-weight: 100;">&lt;Int32&gt;</em></h3>
+<table border="1" style="margin-left: 40px;">
+	<tbody>
+		<tr>
+			<td>Required?</td>
+			<td>False</td>
+		</tr>
+		<tr>
+			<td>Position?</td>
+			<td>0</td>
+		</tr>
+		<tr>
+			<td>Default value</td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>Accept pipeline input?</td>
+			<td>true (ByValue, ByPropertyName)</td>
+		</tr>
+		<tr>
+			<td>Accept wildcard characters?</td>
+			<td>False</td>
+		</tr>
+	</tbody>
+</table>
+<h3>&lt;CommonParameters&gt;</h3>
+<p style="margin-left: 40px;">This cmdlet supports the common parameters: Verbose, Debug,<br />
+ErrorAction, ErrorVariable, WarningAction, WarningVariable,<br />
+OutBuffer, PipelineVariable, and OutVariable. For more information, see<br />
+about_CommonParameters (<a href="http://go.microsoft.com/fwlink/?LinkID=113216">http://go.microsoft.com/fwlink/?LinkID=113216</a>).</p>
+<h2><strong>Inputs</strong></h2>
+<p style="margin-left: 40px;"></p>
+<p style="margin-left: 80px;"></p>
+<h2><strong>Outputs</strong></h2>
+<p style="margin-left: 40px;"></p>
+<p style="margin-left: 80px;"></p>
+<h2><strong>Notes</strong></h2>
+<h2><strong>Examples</strong></h2>
+<h2><strong>Related links</strong></h2>
+

@@ -408,10 +408,13 @@ function Internal-PopulateAssignment
     $instance
 
   )
+  $splitChar= '\'
   $Assignment = New-Object -TypeName Vmware.Appvolumes.AppVolumesAssignment
   $Assignment.DistignushedName = $instance.entity_dn
-  $Assignment.SamAccountName = $instance.entity_upn.Split('\')[1]
-  $Assignment.Domain = $instance.entity_upn.Split('\')[0]
+  $Assignment.EntityType = $instance.entityt
+  if ($Assignment.EntityType -eq 'OrgUnit') {$splitChar= ' '}
+  $Assignment.SamAccountName = $instance.entity_upn.Split($splitChar)[1]
+  $Assignment.Domain = $instance.entity_upn.Split($splitChar)[0]
   $Assignment.EntityType = $instance.entityt
   $Assignment.EventTime = $instance.event_time
   $Assignment.MountPrefix = $instance.mount_prefix

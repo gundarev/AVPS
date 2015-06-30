@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<HTML>
+<HEAD>
+<meta name="GENERATOR" content="Microsoft&reg; HTML Help Workshop 4.1">
+<!-- Sitemap 1.0 -->
+</HEAD><BODY>
+<OBJECT type="text/site properties">
+	<param name="ImageType" value="Folder">
+</OBJECT>
+<UL>
+	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Cmdlets">
+		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Close-AppVolSession">
+			<param name="Local" value="Help\Close-AppVolSession.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Get-AppVolAppStack">
+			<param name="Local" value="Help\Get-AppVolAppStack.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Get-AppVolAppStackFile">
+			<param name="Local" value="Help\Get-AppVolAppStackFile.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Get-AppVolAssignment">
+			<param name="Local" value="Help\Get-AppVolAssignment.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Get-AppVolComputer">
+			<param name="Local" value="Help\Get-AppVolComputer.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Get-AppVolGroup">
+			<param name="Local" value="Help\Get-AppVolGroup.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Get-AppVolOrgUnit">
+			<param name="Local" value="Help\Get-AppVolOrgUnit.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Get-AppVolUser">
+			<param name="Local" value="Help\Get-AppVolUser.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Get-AppVolVersion">
+			<param name="Local" value="Help\Get-AppVolVersion.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Open-AppVolSession">
+			<param name="Local" value="Help\Open-AppVolSession.htm">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Test-AppVolSession">
+			<param name="Local" value="Help\Test-AppVolSession.htm">
+			</OBJECT>
+	</UL>
+</UL>
+</BODY></HTML>
