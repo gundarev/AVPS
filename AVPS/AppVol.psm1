@@ -680,44 +680,41 @@ function Get-AppVolAppStackFile
 
   [CmdletBinding(DefaultParameterSetName = "AllAppStackFiles")]
   param(
-    [Parameter(Mandatory = $false,Position = 1)]
-    [Parameter(ParameterSetName = "SelectedAppStackFile",Mandatory = $true,Position = 1,ValueFromPipeline = $TRUE,ValueFromPipelineByPropertyName = $true,ValueFromRemainingArguments = $false,HelpMessage = "Enter one or more AppStack IDs separated by commas.")]
-    [Alias('id','VolumeId')]
-    [ValidateNotNull()]
-    [int[]]$VolumeID,
-    [Parameter(Mandatory = $false,Position = 1)]
-    [Parameter(ParameterSetName = "AllAppStackFiles",Position = 1,ValueFromPipeline = $false,Mandatory = $false)]
+    [Parameter(ParameterSetName = "SelectedVolume",Mandatory = $false,Position = 0,ValueFromPipeline = $TRUE,ValueFromPipelineByPropertyName = $true,ValueFromRemainingArguments = $false,HelpMessage = "Enter one or more AppStack IDs separated by commas.")]
+    [Alias('id')]
+    [AllowNull()]
+    [int]$VolumeID,
+    
+    [Parameter(ParameterSetName = "AllAppStackFiles",Position = 0,ValueFromPipeline = $false,Mandatory = $false)]
     [switch]$All,
-    [Parameter(Mandatory = $false,Position = 2)]
+    
     [ValidateNotNull()]
     [switch]$Missing,
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [switch]$Reachable,
-    [Parameter(Mandatory = $false,Position = 2)]
     [ValidateNotNull()]
     [string]$DataStore,
-    [Parameter(Mandatory = $false,Position = 3)]
+   
     [switch]$Exact,
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$Like,
-    [Parameter(Mandatory = $false,Position = 3)]
     [switch]$Not
   )
   begin
 
   {
     Test-AppVolSession
-    [Vmware.Appvolumes.AppVolumesAppStackFile[]]$AppStackFiles = $null
-    [Vmware.Appvolumes.AppVolumesAppStackFile[]]$AppStackFilesFiltered = $null
+    [Vmware.Appvolumes.AppVolumesAppStackFile[]]$Entities = $null
+     switch ($PsCmdlet.ParameterSetName)
+    {
+    "AllAppStackFiles"
+      {
+        $Entities = Get-AppVolAppStack | Get-AppVolAppStackFile
+      }
+    }
   }
 
   process
   {
-    switch ($PsCmdlet.ParameterSetName)
-    {
-      "SelectedAppStackFile"
-      {
         foreach ($AppStackId in $VolumeID)
         {
           $rooturi = "$($Global:GlobalSession.Uri)cv_api/appstacks/$AppStackId/files"
@@ -725,29 +722,16 @@ function Get-AppVolAppStackFile
           foreach ($instance in $instances)
           {
             $AppStackFile = Internal-PopulateAppStackFile $instance
-            $AppStackFile.AppStackId = $AppStackId
-            $AppStackFiles += $AppStackFile
+            $AppStackFile.VolumeId = $AppStackId
+            $Entities += $AppStackFile
           }
         }
-      }
-      "AllAppStackFiles"
-      {
-        $AppStackFiles = Get-AppVolAppStack | Get-AppVolAppStackFile
-      }
-    }
-    foreach ($AppStackFile in $AppStackFiles)
-    {
-      $AppStackFileFiltered += Internal-FilterResults ($AppStackFile)
-    }
+  
   }
   end
   {
-    if ($AppStackFilesFiltered) { return $AppStackFilesFiltered }
-    else { return $AppStackFiles }
+    return Internal-ReturnGet $PSCmdlet.MyInvocation.BoundParameters.Keys $Entities
   }
-
- 
-
 }
 
 <# 
