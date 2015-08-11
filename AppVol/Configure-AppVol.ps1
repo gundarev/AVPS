@@ -2,7 +2,7 @@
 Import-Module  Microsoft.PowerShell.Utility
 if (-not $(Test-Path "$psScriptRoot\AppVol.dll")) 
 {
-Add-Type -OutputAssembly "$psScriptRoot\AppVol.dll" -OutputType:Library -ReferencedAssemblies (Get-Module Microsoft.PowerShell.Utility).NestedModules[0].path @"
+Add-Type -OutputAssembly "$psScriptRoot\AppVol.dll"  -OutputType:Library -ReferencedAssemblies (Get-Module Microsoft.PowerShell.Utility).NestedModules[0].path @"
 using System;
 using System.Net;
 
@@ -23,6 +23,58 @@ namespace VMware.AppVolumes
         public string Version;
     }
 
+        public class AppVolumesDataStoreConfig
+    {
+        public string AppStackPath;
+        public AppVolumesDataStore AppStackStorage;
+        public string AppStackTemplatePath;
+        public AppVolumesMachineManager AppStackMachineManager;
+        public string DatacenterName;
+        public string WritablePath;
+        public AppVolumesDataStore WritableStorage;
+        public string WritableTemplatePath;
+        public AppVolumesMachineManager WritableMachineManager;
+        
+        
+        
+    }
+    public class AppVolumesMachineManager
+    {
+     public static implicit operator AppVolumesMachineManager(int s)
+    {
+        return new AppVolumesMachineManager { MachineManagerId = s };
+    }
+    public override string ToString()
+        {
+            return MachineManagerId;
+        }
+        public string AdapterType;
+        public string Description;
+        public int MachineManagerId;
+        public string Name;
+        public bool Connected;
+        public bool MountOnHost;
+        public bool UseLocalVolumes;
+        public bool ManageAcl;
+        public string Type;
+        public string UserName;
+                
+    }
+    public class AppVolumesDataStore
+    {
+        public bool Accessible;
+        public DatastoreCategory DatastoreCategory;
+        public int DatastoreId;
+        public string DatacenterName;
+        public string Description;
+        public string DisplayName;
+        public string HostName;
+        public AppVolumesMachineManager MachineManager;
+        public string TextIdentifier;
+        public string Name;
+        public string Note;
+        
+    }
     public class AppVolumesAppStack
     {
         public string AgentVersion;
@@ -86,6 +138,14 @@ namespace VMware.AppVolumes
         Desktop = 1,
         Server = 2,
         TServer = 3
+    }
+
+    public enum DatastoreCategory
+    {
+        Unknown = 0,
+        Local = 1,
+        Shared = 2
+        
     }
     public class AppVolumesAssignment
     {

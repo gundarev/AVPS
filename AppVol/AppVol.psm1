@@ -174,6 +174,17 @@ function Internal-FilterResults
             $EntityList += $Entity
           }
         }
+        "DatastoreCategory"
+        {
+          if ($Entity.$CurrentParameter -eq $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and (-not $Not))
+          {
+            $EntityList += $Entity
+          }
+          elseif ($Entity.$CurrentParameter -ne $PSCmdlet.MyInvocation.BoundParameters[$CurrentParameter] -and ($Not))
+          {
+            $EntityList += $Entity
+          }
+        }
         {($_ -match "Int") -or ($_ -eq "DateTime")}
         {
           if ($Exact -or ((-not $Exact) -and (-not $gt) -and (-not $lt) -and (-not $ge) -and (-not $le)))
@@ -334,6 +345,36 @@ function Internal-PopulateAppStack
 
 }
 
+function Internal-PopulateDatastore
+
+{
+
+  param(
+    $instance
+
+  )
+  $LocalEntity = New-Object -TypeName Vmware.Appvolumes.AppVolumesDataStore
+
+if ($instance.accessible) {$LocalEntity.Accessible = $instance.accessible}
+
+
+if ($instance.category) {$LocalEntity.DatastoreCategory = $instance.category}
+if ($instance.uniq_string) {$LocalEntity.MachineManager = [int]$($instance.uniq_string).Split("|")[2]}
+
+if ($instance.datacenter) {$LocalEntity.DatacenterName = $instance.datacenter}
+if ($instance.description) {$LocalEntity.Description = $instance.description}
+if ($instance.display_name) {$LocalEntity.DisplayName = $instance.display_name}
+if ($instance.host) {$LocalEntity.HostName = $instance.host}
+if ($instance.id) {$LocalEntity.DatastoreId = $instance.id}
+if ($instance.identifier) {$LocalEntity.TextIdentifier = $instance.identifier}
+if ($instance.name) {$LocalEntity.Name = $instance.name}
+if ($instance.note) {$LocalEntity.Note = $instance.note}
+
+
+  
+  return $LocalEntity
+
+}
 function Internal-PopulateEntity
 
 {
@@ -399,7 +440,6 @@ switch ($EntityType)
   return $LocalEntity
 
 }
-
 function Internal-PopulateAssignment
 
 {
@@ -584,6 +624,148 @@ function Get-AppVolVersion
     }
   }
 }
+
+
+#.ExternalHelp AppVol.psm1-help.xml
+function Get-AppVolDataStoreConfig
+{
+
+  
+  begin
+  {
+    Test-AppVolSession
+    [Vmware.Appvolumes.AppVolumesDataStore []]$Entities = $null
+    
+    $rooturi = "$($Global:GlobalSession.Uri)cv_api/datastores"
+    switch ($PsCmdlet.ParameterSetName)
+    {
+      "AllEntities"
+      {
+        $tmp = Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get
+        foreach ($Entity in $($tmp.datastores))
+        {
+          $Entities += Internal-PopulateDatastore $Entity
+        }
+      }
+      }
+  }
+  process
+  {
+   switch ($PsCmdlet.ParameterSetName)
+    {
+      "SelectedEntity"
+      {
+        $tmp = $(Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get).datastores
+        foreach ($Entity in $tmp)
+        {
+          $tmpEntity = Internal-PopulateDatastore $Entity
+          if ($tmpEntity.EntityId -eq $EntityId)
+          {
+            $Entities += $tmpEntity
+          }
+        }
+      }
+    }
+  }
+  end
+  {
+  #Internal-GetOnlineEntity ($Entities)
+ 
+   return Internal-ReturnGet $PSCmdlet.MyInvocation.BoundParameters.Keys $Entities
+  }
+
+  
+
+}
+
+
+
+
+#.ExternalHelp AppVol.psm1-help.xml
+function Get-AppVolDataStore
+{
+
+  [CmdletBinding(DefaultParameterSetName = "AllEntities")]
+  param(
+    [Parameter(ParameterSetName = "AllEntities",Position = 0,ValueFromPipeline = $false,Mandatory = $false)]
+    [switch]$All,
+    [Parameter(ParameterSetName = "SelectedEntity",Mandatory = $false,Position = 0,ValueFromPipeline = $TRUE,ValueFromPipelineByPropertyName = $true,ValueFromRemainingArguments = $false,HelpMessage = "Enter one or more AppStack IDs separated by commas.")]
+    [Alias('id')]
+    [AllowNull()]
+    [int]$DatastoreId,
+
+    
+
+[ValidateNotNull()]
+[switch]$Accessible,
+
+[ValidateNotNull()] 
+[VMware.AppVolumes.DataStoreCategory]$DataStoreCategory,
+
+[ValidateNotNull()]
+[string]$DataCenterName,
+
+[ValidateNotNull()]
+[int]$DataCenterId,
+
+[ValidateNotNull()]
+[string]$Name,
+
+
+    [switch]$Exact,
+    [switch]$Like,
+
+  
+    [switch]$Not
+
+  )
+  begin
+  {
+    Test-AppVolSession
+    [Vmware.Appvolumes.AppVolumesDataStore []]$Entities = $null
+    
+    $rooturi = "$($Global:GlobalSession.Uri)cv_api/datastores"
+    switch ($PsCmdlet.ParameterSetName)
+    {
+      "AllEntities"
+      {
+        $tmp = Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get
+        foreach ($Entity in $($tmp.datastores))
+        {
+          $Entities += Internal-PopulateDatastore $Entity
+        }
+      }
+      }
+  }
+  process
+  {
+   switch ($PsCmdlet.ParameterSetName)
+    {
+      "SelectedEntity"
+      {
+        $tmp = $(Internal-Rest -Session $Global:GlobalSession -Uri $rooturi -Method Get).datastores
+        foreach ($Entity in $tmp)
+        {
+          $tmpEntity = Internal-PopulateDatastore $Entity
+          if ($tmpEntity.EntityId -eq $EntityId)
+          {
+            $Entities += $tmpEntity
+          }
+        }
+      }
+    }
+  }
+  end
+  {
+  #Internal-GetOnlineEntity ($Entities)
+ 
+   return Internal-ReturnGet $PSCmdlet.MyInvocation.BoundParameters.Keys $Entities
+  }
+
+  
+
+}
+
 
 #.ExternalHelp AppVol.psm1-help.xml
 function Get-AppVolAppStack
@@ -853,6 +1035,9 @@ function Get-AppVolAppStackFile
     return Internal-ReturnGet $PSCmdlet.MyInvocation.BoundParameters.Keys $Entities
   }
 }
+
+
+
 
 #.ExternalHelp AppVol.psm1-help.xml
 function Get-AppVolUser

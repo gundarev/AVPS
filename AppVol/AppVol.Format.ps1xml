@@ -1,6 +1,31 @@
 ﻿<?xml version="1.0" encoding="utf-16"?>
 <Configuration>
+    <Controls>
+        <Control>
+            <Name>MachineManager-GroupingFormat</Name>
+                    <CustomControl>
+                        <CustomEntries>
+                            <CustomEntry>
+                                <CustomItem>
+                                    <Frame>
+                                        <LeftIndent>4</LeftIndent>
+                                        <CustomItem>
+                                            <Text>MachineManager: </Text>
+                                            <ExpressionBinding>
+                                                <ScriptBlock>$_.MachineManager.MachineManagerId</ScriptBlock>
+                                            </ExpressionBinding>
+                                            <NewLine/>
+                                        </CustomItem> 
+                                    </Frame>
+                                </CustomItem>
+                            </CustomEntry>
+                        </CustomEntries>
+            </CustomControl>
+        </Control>
+    </Controls>
+
   <ViewDefinitions>
+
 <View>
   <Name>App Volumes Session</Name>
   <ViewSelectedBy>
@@ -15,7 +40,7 @@
       <Label>Service Version</Label>
       </TableColumnHeader>
       <TableColumnHeader>
-      <Label>Service Version</Label>
+      <Label>Session Start</Label>
       </TableColumnHeader>
     </TableHeaders>
     <TableRowEntries>
@@ -63,6 +88,115 @@
           </TableColumnItem>
           <TableColumnItem>
             <PropertyName>Copyright</PropertyName>
+          </TableColumnItem>
+        </TableColumnItems>
+      </TableRowEntry>
+    </TableRowEntries>
+  </TableControl>
+</View>
+<View>
+  <Name>App Volumes Datastore</Name>
+  <ViewSelectedBy>
+    <TypeName>Vmware.Appvolumes.AppVolumesDataStore</TypeName>
+  </ViewSelectedBy>
+            <GroupBy>
+            	<ScriptBlock>($_.MachineManager.MachineManagerId)</ScriptBlock>
+                <CustomControlName>MachineManager-GroupingFormat</CustomControlName>  
+            </GroupBy>
+
+  <TableControl>
+    <TableHeaders>
+      <TableColumnHeader>
+        <Label>Datastore Id</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Display Name</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Machine Manager</Label>
+      </TableColumnHeader>
+    </TableHeaders>
+    <TableRowEntries>
+      <TableRowEntry>
+        <TableColumnItems>
+          <TableColumnItem>
+            <PropertyName>DatastoreId</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>DisplayName</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <ScriptBlock>($_.MachineManager.MachineManagerId)</ScriptBlock>
+          </TableColumnItem>
+        </TableColumnItems>
+      </TableRowEntry>
+    </TableRowEntries>
+  </TableControl>
+</View>
+<View>
+  <Name>App Volumes Machine Manager</Name>
+  <ViewSelectedBy>
+    <TypeName>Vmware.Appvolumes.AppVolumesMachineManager</TypeName>
+  </ViewSelectedBy>
+  <TableControl>
+    <TableHeaders>
+      <TableColumnHeader>
+        <Label>Machine Manager Id</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Name</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Connected</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>MountOnHost</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>UseLocalVolumes</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>ManageAcl</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Type</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>UserName</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Description</Label>
+      </TableColumnHeader>
+    </TableHeaders>
+    <TableRowEntries>
+      <TableRowEntry>
+        <TableColumnItems>
+          <TableColumnItem>
+            <PropertyName>MachineManagerId</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>Name</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>Connected</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>MountOnHost</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>UseLocalVolumes</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>ManageAcl</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>Type</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>UserName</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>Description</PropertyName>
           </TableColumnItem>
         </TableColumnItems>
       </TableRowEntry>

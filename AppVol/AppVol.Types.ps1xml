@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Types>
+	<Type>
+		<Name>Vmware.Appvolumes.AppVolumesMachineManager</Name>
+		<Members>
+			<MemberSet>
+				<Name>PsStandardMembers</Name>
+				<Members>
+					<NoteProperty>
+						<Name>DefaultDisplayProperty</Name>
+						<Value>MachineManagerId</Value>
+					</NoteProperty>
+					<PropertySet>
+						<Name>DefaultDisplayPropertySet</Name>
+						<ReferencedProperties>
+							<Name>MachineManagerId</Name>
+							<Name>Name</Name>
+						</ReferencedProperties>
+					</PropertySet>
+					<PropertySet>
+						<Name>DefaultKeyPropertySet</Name>
+						<ReferencedProperties>
+							<Name>MachineManagerId</Name>
+						</ReferencedProperties>
+					</PropertySet>
+				</Members>
+			</MemberSet>
+		</Members>
+	</Type>
+</Types>
