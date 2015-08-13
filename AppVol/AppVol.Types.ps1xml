@@ -27,4 +27,24 @@
 			</MemberSet>
 		</Members>
 	</Type>
+<Type>
+		<Name>Vmware.Appvolumes.AppVolumesDatastore</Name>
+		<Members>
+			<MemberSet>
+				<Name>PsStandardMembers</Name>
+				<Members>
+					<NoteProperty>
+						<Name>DefaultDisplayProperty</Name>
+						<Value>DatastoreId</Value>
+					</NoteProperty>
+					<PropertySet>
+						<Name>DefaultKeyPropertySet</Name>
+						<ReferencedProperties>
+							<Name>DatastoreId</Name>
+						</ReferencedProperties>
+					</PropertySet>
+				</Members>
+			</MemberSet>
+		</Members>
+	</Type>
 </Types>
