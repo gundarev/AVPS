@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+    <Controls>
+        <Control>
+            <Name>MachineManager-GroupingFormat</Name>
+                    <CustomControl>
+                        <CustomEntries>
+                            <CustomEntry>
+                                <CustomItem>
+                                    <Frame>
+                                        <LeftIndent>4</LeftIndent>
+                                        <CustomItem>
+                                            <Text>MachineManager: </Text>
+                                            <ExpressionBinding>
+                                                <ScriptBlock>if(!$_.MachineManager.Name) {$_.MachineManager.MachineManagerId}else {$_.MachineManager.Name}</ScriptBlock>
+                                            </ExpressionBinding>
+                                            <NewLine/>
+                                        </CustomItem> 
+                                    </Frame>
+                                </CustomItem>
+                            </CustomEntry>
+                        </CustomEntries>
+            </CustomControl>
+        </Control>
+    </Controls>
+
+  <ViewDefinitions>
+
+<View>
+  <Name>App Volumes Session</Name>
+  <ViewSelectedBy>
+    <TypeName>Vmware.Appvolumes.AppVolumesSession</TypeName>
+  </ViewSelectedBy>
+  <TableControl>
+    <TableHeaders>
+      <TableColumnHeader>
+        <Label>Service Url</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Service Version</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Session Start</Label>
+      </TableColumnHeader>
+    </TableHeaders>
+    <TableRowEntries>
+      <TableRowEntry>
+        <TableColumnItems>
+          <TableColumnItem>
+            <PropertyName>Uri</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>Version</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>SessionStart</PropertyName>
+          </TableColumnItem>
+        </TableColumnItems>
+      </TableRowEntry>
+    </TableRowEntries>
+  </TableControl>
+</View>
+<View>
+  <Name>App Volumes Version</Name>
+  <ViewSelectedBy>
+    <TypeName>Vmware.Appvolumes.AppVolumesVersion</TypeName>
+  </ViewSelectedBy>
+  <TableControl>
+    <TableHeaders>
+      <TableColumnHeader>
+        <Label>Version</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Internal Version</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Copyright</Label>
+      </TableColumnHeader>
+    </TableHeaders>
+    <TableRowEntries>
+      <TableRowEntry>
+        <TableColumnItems>
+          <TableColumnItem>
+            <PropertyName>Version</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>InternalVersion</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>Copyright</PropertyName>
+          </TableColumnItem>
+        </TableColumnItems>
+      </TableRowEntry>
+    </TableRowEntries>
+  </TableControl>
+</View>
+<View>
+  <Name>App Volumes Datastore</Name>
+  <ViewSelectedBy>
+    <TypeName>Vmware.Appvolumes.AppVolumesDataStore</TypeName>
+  </ViewSelectedBy>
+
+  <TableControl>
+    <TableHeaders>
+      <TableColumnHeader><Label>Datastore Id</Label></TableColumnHeader>
+      <TableColumnHeader><Label>Name</Label></TableColumnHeader>
+      <TableColumnHeader><Label>Machine Manager Id</Label></TableColumnHeader>
+      <TableColumnHeader><Label>Machine Hostname</Label></TableColumnHeader>
+      <TableColumnHeader><Label>DatacenterName</Label></TableColumnHeader>
+      <TableColumnHeader><Label>Accessible</Label></TableColumnHeader>
+    </TableHeaders>
+    <TableRowEntries>
+      <TableRowEntry>
+        <TableColumnItems>
+          <TableColumnItem><PropertyName>DatastoreId</PropertyName></TableColumnItem>
+          <TableColumnItem><PropertyName>Name</PropertyName></TableColumnItem>
+          <TableColumnItem><ScriptBlock>$_.MachineManager.MachineManagerId</ScriptBlock></TableColumnItem>
+          <TableColumnItem><PropertyName>HostName</PropertyName></TableColumnItem>
+          <TableColumnItem><PropertyName>DatacenterName</PropertyName></TableColumnItem>
+          <TableColumnItem><PropertyName>Accessible</PropertyName></TableColumnItem>
+        </TableColumnItems>
+      </TableRowEntry>
+    </TableRowEntries>
+  </TableControl>
+</View>
+<View>
+  <Name>App Volumes Datastore Configuration</Name>
+  <ViewSelectedBy>
+    <TypeName>Vmware.Appvolumes.AppVolumesDataStoreConfig</TypeName>
+  </ViewSelectedBy>
+  <ListControl>
+   <ListEntries>
+    <ListEntry>
+     <EntrySelectedBy>
+      <TypeName>Vmware.Appvolumes.AppVolumesDataStoreConfig</TypeName>
+     </EntrySelectedBy>
+     <ListItems>
+      <ListItem><Label>AppStack Path</Label><PropertyName>AppStackPath</PropertyName></ListItem>
+      <ListItem><Label>AppStack Storage</Label><ScriptBlock>$_.AppStackStorage.DisplayName</ScriptBlock></ListItem>
+      <ListItem><Label>AppStack Template Path</Label><PropertyName>AppStackTemplatePath</PropertyName></ListItem>
+      <ListItem><Label>AppStack Machine Manager</Label><ScriptBlock>$_.AppStackMachineManager.MachineManagerId</ScriptBlock></ListItem>
+      <ListItem><Label>Datacenter Name</Label><PropertyName>DatacenterName</PropertyName></ListItem>
+      <ListItem><Label>Writable Path</Label><PropertyName>WritablePath</PropertyName></ListItem>
+      <ListItem><Label>Writable Storage</Label><ScriptBlock>$_.WritableStorage.DisplayName</ScriptBlock></ListItem>
+      <ListItem><Label>Writable Template Path</Label><PropertyName>WritableTemplatePath</PropertyName></ListItem>
+      <ListItem><Label>Writable Machine Manager</Label><ScriptBlock>$_.WritableMachineManager.MachineManagerId</ScriptBlock></ListItem>
+     </ListItems>
+    </ListEntry>
+   </ListEntries>
+  </ListControl>
+</View>
+<View>
+  <Name>App Volumes Machine Manager</Name>
+  <ViewSelectedBy>
+    <TypeName>Vmware.Appvolumes.AppVolumesMachineManager</TypeName>
+  </ViewSelectedBy>
+  <TableControl>
+    <TableHeaders>
+      <TableColumnHeader>
+        <Label>Machine Manager Id</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Name</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Connected</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>MountOnHost</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>UseLocalVolumes</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>ManageAcl</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Type</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>UserName</Label>
+      </TableColumnHeader>
+      <TableColumnHeader>
+      <Label>Description</Label>
+      </TableColumnHeader>
+    </TableHeaders>
+    <TableRowEntries>
+      <TableRowEntry>
+        <TableColumnItems>
+          <TableColumnItem>
+            <PropertyName>MachineManagerId</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>Name</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>Connected</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>MountOnHost</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>UseLocalVolumes</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>ManageAcl</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>Type</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>UserName</PropertyName>
+          </TableColumnItem>
+          <TableColumnItem>
+            <PropertyName>Description</PropertyName>
+          </TableColumnItem>
+        </TableColumnItems>
+      </TableRowEntry>
+    </TableRowEntries>
+  </TableControl>
+</View>
+  </ViewDefinitions>
+</Configuration>

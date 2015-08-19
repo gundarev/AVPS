@@ -132,14 +132,14 @@
 				<ListEntries>
 					<ListEntry>
 						<ListItems>
-							<ListItem><Label>AppStack Path</Label><PropertyName>AppStackPath</PropertyName></ListItem>
-							<ListItem><Label>AppStack Storage</Label><ScriptBlock>$_.AppStackStorage.DisplayName</ScriptBlock></ListItem>
+							<ListItem><Label>AppStack Path</Label><PropertyName>AppStackDefaultPath</PropertyName></ListItem>
+							<ListItem><Label>AppStack Storage</Label><ScriptBlock>$_.AppStackDefaultStorage.DisplayName</ScriptBlock></ListItem>
 							<ListItem><Label>AppStack Template Path</Label><PropertyName>AppStackTemplatePath</PropertyName></ListItem>
-							<ListItem><Label>AppStack Machine Manager</Label><ScriptBlock>$_.AppStackMachineManager.MachineManagerId</ScriptBlock></ListItem>
-							<ListItem><Label>Writable Path</Label><PropertyName>WritablePath</PropertyName></ListItem>
-							<ListItem><Label>Writable Storage</Label><ScriptBlock>$_.WritableStorage.DisplayName</ScriptBlock></ListItem>
+							<ListItem><Label>AppStack Machine Manager</Label><ScriptBlock>$_.AppStackMachineManager.Name</ScriptBlock></ListItem>
+							<ListItem><Label>Writable Path</Label><PropertyName>WritableDefaultPath</PropertyName></ListItem>
+							<ListItem><Label>Writable Storage</Label><ScriptBlock>$_.WritableDefaultStorage.DisplayName</ScriptBlock></ListItem>
 							<ListItem><Label>Writable Template Path</Label><PropertyName>WritableTemplatePath</PropertyName></ListItem>
-							<ListItem><Label>Writable Machine Manager</Label><ScriptBlock>$_.WritableMachineManager.MachineManagerId</ScriptBlock></ListItem>
+							<ListItem><Label>Writable Machine Manager</Label><ScriptBlock>$_.WritableMachineManager.Name</ScriptBlock></ListItem>
 						</ListItems>
 					</ListEntry>
 				</ListEntries>
