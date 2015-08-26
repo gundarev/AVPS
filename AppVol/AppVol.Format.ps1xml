@@ -12,7 +12,7 @@
 								<CustomItem>
 									<Text>MachineManager: </Text>
 									<ExpressionBinding>
-										<ScriptBlock>if(!$_.MachineManager.Name) {$_.MachineManager.MachineManagerId}else {$_.MachineManager.Name}</ScriptBlock>
+										<ScriptBlock>if(!$_.MachineManager.Name) {$_.MachineManager.Id}else {$_.MachineManager.Name}</ScriptBlock>
 									</ExpressionBinding>
 									<NewLine/>
 								</CustomItem>
@@ -109,9 +109,9 @@
 				<TableRowEntries>
 					<TableRowEntry>
 						<TableColumnItems>
-							<TableColumnItem><PropertyName>DatastoreId</PropertyName></TableColumnItem>
+							<TableColumnItem><PropertyName>Id</PropertyName></TableColumnItem>
 							<TableColumnItem><PropertyName>Name</PropertyName></TableColumnItem>
-							<TableColumnItem><ScriptBlock>$_.MachineManager.MachineManagerId</ScriptBlock></TableColumnItem>
+							<TableColumnItem><ScriptBlock>$_.MachineManager.Id</ScriptBlock></TableColumnItem>
 							<TableColumnItem><PropertyName>HostName</PropertyName></TableColumnItem>
 							<TableColumnItem><PropertyName>DatacenterName</PropertyName></TableColumnItem>
 							<TableColumnItem><PropertyName>Accessible</PropertyName></TableColumnItem>
@@ -184,7 +184,7 @@
 					<TableRowEntry>
 						<TableColumnItems>
 							<TableColumnItem>
-								<PropertyName>MachineManagerId</PropertyName>
+								<PropertyName>Id</PropertyName>
 							</TableColumnItem>
 							<TableColumnItem>
 								<PropertyName>Name</PropertyName>
